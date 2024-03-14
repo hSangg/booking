@@ -2,12 +2,17 @@ import { useFonts } from "expo-font"
 import { Slot, Stack, useRouter } from "expo-router"
 import * as SplashScreen from "expo-splash-screen"
 import { useEffect } from "react"
+import {
+	GestureHandlerRootView,
+	NativeViewGestureHandler,
+} from "react-native-gesture-handler"
 
 import { useColorScheme } from "@/components/useColorScheme"
 import { Ionicons } from "@expo/vector-icons"
 import * as SecureStore from "expo-secure-store"
 import { TouchableOpacity } from "react-native"
 import { useAuth, ClerkProvider } from "@clerk/clerk-expo"
+import { GestureStateManager } from "react-native-gesture-handler/lib/typescript/handlers/gestures/gestureStateManager"
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
 
@@ -38,9 +43,6 @@ export const unstable_settings = {
 	initialRouteName: "(tabs)",
 }
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync()
-
 export default function RootLayout() {
 	const [loaded, error] = useFonts({
 		mon: require("@/assets/fonts/Montserrat-Regular.ttf"),
@@ -56,7 +58,6 @@ export default function RootLayout() {
 
 	useEffect(() => {
 		if (loaded) {
-			SplashScreen.hideAsync()
 		}
 	}, [loaded])
 
