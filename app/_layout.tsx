@@ -1,18 +1,13 @@
 import { useFonts } from "expo-font"
 import { Slot, Stack, useRouter } from "expo-router"
-import * as SplashScreen from "expo-splash-screen"
 import { useEffect } from "react"
-import {
-	GestureHandlerRootView,
-	NativeViewGestureHandler,
-} from "react-native-gesture-handler"
 
 import { useColorScheme } from "@/components/useColorScheme"
+import { ClerkProvider, useAuth } from "@clerk/clerk-expo"
 import { Ionicons } from "@expo/vector-icons"
 import * as SecureStore from "expo-secure-store"
 import { TouchableOpacity } from "react-native"
-import { useAuth, ClerkProvider } from "@clerk/clerk-expo"
-import { GestureStateManager } from "react-native-gesture-handler/lib/typescript/handlers/gestures/gestureStateManager"
+import ModalHeader from "@/components/ModalHeader"
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
 
@@ -42,6 +37,8 @@ export const unstable_settings = {
 	// Ensure that reloading on `/modal` keeps a back button present.
 	initialRouteName: "(tabs)",
 }
+
+// SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
 	const [loaded, error] = useFonts({
@@ -121,17 +118,19 @@ function RootLayoutNav() {
 				options={{
 					presentation: "transparentModal",
 					animation: "fade",
-					headerLeft: () => {
-						return (
-							<TouchableOpacity
-								onPress={() => {
-									router.back()
-								}}
-							>
-								<Ionicons name='close-outline' size={28} />
-							</TouchableOpacity>
-						)
-					},
+					headerTransparent: true,
+					headerTitle: () => <ModalHeader />,
+					// headerLeft: () => {
+					// 	return (
+					// 		<TouchableOpacity
+					// 			onPress={() => {
+					// 				router.back()
+					// 			}}
+					// 		>
+					// 			<Ionicons name='close-outline' size={28} />
+					// 		</TouchableOpacity>
+					// 	)
+					// },
 				}}
 			/>
 		</Stack>

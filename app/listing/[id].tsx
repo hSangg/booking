@@ -139,10 +139,12 @@ const DetailsPage = () => {
 						/>
 
 						<View>
-							<Text style={{ fontWeight: "500", fontSize: 16 }}>
+							<Text style={{ fontSize: 14, fontFamily: "mon" }}>
 								Hosted by {listing.host_name}
 							</Text>
-							<Text>Host since {listing.host_since}</Text>
+							<Text style={{ fontSize: 14, fontFamily: "mon-sb" }}>
+								Host since {listing.host_since}
+							</Text>
 						</View>
 					</View>
 
@@ -220,7 +222,6 @@ const styles = StyleSheet.create({
 	},
 	name: {
 		fontSize: 26,
-		fontWeight: "bold",
 		fontFamily: "mon-sb",
 	},
 	location: {
