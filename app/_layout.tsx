@@ -1,6 +1,6 @@
 import { useFonts } from "expo-font"
 import { Slot, Stack, useRouter } from "expo-router"
-import { useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import { useColorScheme } from "@/components/useColorScheme"
 import { ClerkProvider, useAuth } from "@clerk/clerk-expo"
@@ -8,8 +8,14 @@ import { Ionicons } from "@expo/vector-icons"
 import * as SecureStore from "expo-secure-store"
 import { TouchableOpacity } from "react-native"
 import ModalHeader from "@/components/ModalHeader"
+import AppLoading from "expo-app-loading"
+import * as SplashScreen from "expo-splash-screen"
+import * as Font from "expo-font"
 
-const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
+SplashScreen.preventAutoHideAsync()
+
+const CLERK_PUBLISHABLE_KEY =
+	process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
 
 const tokenCache = {
 	async getToken(key: string) {
@@ -28,6 +34,8 @@ const tokenCache = {
 	},
 }
 
+SplashScreen.hideAsync()
+
 export {
 	// Catch any errors thrown by the Layout component.
 	ErrorBoundary,
@@ -38,29 +46,58 @@ export const unstable_settings = {
 	initialRouteName: "(tabs)",
 }
 
-// SplashScreen.preventAutoHideAsync()
-
 export default function RootLayout() {
-	const [loaded, error] = useFonts({
-		mon: require("@/assets/fonts/Montserrat-Regular.ttf"),
-		"mon-sb": require("@/assets/fonts/Montserrat-SemiBold.ttf"),
-		"mon-b": require("@/assets/fonts/Montserrat-Bold.ttf"),
-		"mon-t": require("@/assets/fonts/Montserrat-Thin.ttf"),
-	})
+	const [appIsReady, setAppIsReady] = useState(false)
+
+	useEffect(() => {
+		async function prepare() {
+			try {
+				// Pre-load fonts, make any API calls you need to do here
+				await Font.loadAsync({
+					mon: require("@/assets/fonts/Montserrat-Regular.ttf"),
+					"mon-sb": require("@/assets/fonts/Montserrat-SemiBold.ttf"),
+					"mon-b": require("@/assets/fonts/Montserrat-Bold.ttf"),
+					"mon-t": require("@/assets/fonts/Montserrat-Thin.ttf"),
+				})
+				// Artificially delay for two seconds to simulate a slow loading
+				// experience. Please remove this if you copy and paste the code!
+				await new Promise((resolve) =>
+					setTimeout(resolve, 2000)
+				)
+			} catch (e) {
+				console.warn(e)
+			} finally {
+				// Tell the application to render
+				setAppIsReady(true)
+			}
+		}
+
+		prepare()
+	}, [])
+
+	const onLayoutRootView = useCallback(async () => {
+		if (appIsReady) {
+			// This tells the splash screen to hide immediately! If we call this after
+			// `setAppIsReady`, then we may see a blank screen while the app is
+			// loading its initial state and rendering its first pixels. So instead,
+			// we hide the splash screen once we know the root view has already
+			// performed layout.
+			await SplashScreen.hideAsync()
+		}
+	}, [appIsReady])
+
+	if (!appIsReady) {
+		return null
+	}
+
+	// const [fontLoaded] = useFonts({
+	// 	mon: require("@/assets/fonts/Montserrat-Regular.ttf"),
+	// 	"mon-sb": require("@/assets/fonts/Montserrat-SemiBold.ttf"),
+	// 	"mon-b": require("@/assets/fonts/Montserrat-Bold.ttf"),
+	// 	"mon-t": require("@/assets/fonts/Montserrat-Thin.ttf"),
+	// })
 
 	// Expo Router uses Error Boundaries to catch errors in the navigation tree.
-	useEffect(() => {
-		if (error) throw error
-	}, [error])
-
-	useEffect(() => {
-		if (loaded) {
-		}
-	}, [loaded])
-
-	if (!loaded) {
-		return <Slot />
-	}
 
 	return (
 		<ClerkProvider
@@ -78,7 +115,8 @@ function RootLayoutNav() {
 
 	const { isLoaded, isSignedIn } = useAuth()
 	useEffect(() => {
-		if (isLoaded && !isSignedIn) router.push("/(modals)/login")
+		if (isLoaded && !isSignedIn)
+			router.push("/(modals)/login")
 	}, [isLoaded])
 
 	return (
@@ -112,7 +150,33 @@ function RootLayoutNav() {
 				}}
 			/>
 
-			<Stack.Screen name='listing/[id]' options={{ headerTitle: "" }} />
+			<Stack.Screen
+				name='(modals)/signup'
+				options={{
+					title: "Sign up",
+
+					headerTitleStyle: {
+						fontFamily: "mon-sb",
+					},
+					presentation: "modal",
+					headerLeft: () => {
+						return (
+							<TouchableOpacity
+								onPress={() => {
+									router.back()
+								}}
+							>
+								<Ionicons name='close-outline' size={28} />
+							</TouchableOpacity>
+						)
+					},
+				}}
+			/>
+
+			<Stack.Screen
+				name='listing/[id]'
+				options={{ headerTitle: "" }}
+			/>
 			<Stack.Screen
 				name='(modals)/booking'
 				options={{

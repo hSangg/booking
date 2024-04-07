@@ -13,7 +13,7 @@ import {
 	View,
 } from "react-native"
 
-const Login = () => {
+const Signup = () => {
 	useWarmUpBrowser()
 
 	const router = useRouter()
@@ -31,17 +31,33 @@ const Login = () => {
 		<View style={style.container}>
 			<TextInput
 				autoCapitalize='none'
+				placeholder='fullname'
+				style={[defaultStyles.inputField, { marginBottom: 10 }]}
+			/>
+
+			<TextInput
+				autoCapitalize='none'
 				placeholder='email'
 				style={[defaultStyles.inputField, { marginBottom: 10 }]}
 			/>
 
 			<TextInput
-				secureTextEntry
 				autoCapitalize='none'
-				placeholder='password'
-				style={[defaultStyles.inputField, { marginBottom: 30 }]}
+				placeholder='phone'
+				style={[defaultStyles.inputField, { marginBottom: 10 }]}
 			/>
 
+			<TextInput
+				autoCapitalize='none'
+				placeholder='password'
+				style={[defaultStyles.inputField, { marginBottom: 10 }]}
+			/>
+
+			<TextInput
+				autoCapitalize='none'
+				placeholder='retype password'
+				style={[defaultStyles.inputField, { marginBottom: 30 }]}
+			/>
 			<TouchableOpacity style={defaultStyles.btn}>
 				<Text style={defaultStyles.btnText}>Continue</Text>
 			</TouchableOpacity>
@@ -66,7 +82,7 @@ const Login = () => {
 				></View>
 			</View>
 
-			{/* <View>
+			<View>
 				<TouchableOpacity style={style.btnOutline}>
 					<Ionicons
 						name='call-outline'
@@ -83,20 +99,6 @@ const Login = () => {
 						style={defaultStyles.btnIcon}
 					/>
 					<Text style={style.btnOutlineText}>Continue with Google</Text>
-				</TouchableOpacity>
-			</View> */}
-
-			<View>
-				<TouchableOpacity
-					onPress={() => router.push("/(modals)/signup")}
-					style={style.btnOutline}
-				>
-					<Ionicons
-						name='log-in-outline'
-						size={24}
-						style={defaultStyles.btnIcon}
-					/>
-					<Text style={style.btnOutlineText}>Sign Up</Text>
 				</TouchableOpacity>
 			</View>
 		</View>
@@ -137,4 +139,4 @@ export const style = StyleSheet.create({
 	},
 })
 
-export default Login
+export default Signup

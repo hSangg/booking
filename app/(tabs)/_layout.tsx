@@ -18,7 +18,11 @@ const Layout = () => {
 				options={{
 					tabBarLabel: "Explore",
 					tabBarIcon: ({ color, size }) => (
-						<Ionicons name='search-outline' color={color} size={size} />
+						<Ionicons
+							name='search-outline'
+							color={color}
+							size={size}
+						/>
 					),
 				}}
 			></Tabs.Screen>
@@ -28,7 +32,11 @@ const Layout = () => {
 				options={{
 					tabBarLabel: "Wishlists",
 					tabBarIcon: ({ color, size }) => (
-						<Ionicons name='heart-outline' color={color} size={size} />
+						<Ionicons
+							name='heart-outline'
+							color={color}
+							size={size}
+						/>
 					),
 				}}
 			></Tabs.Screen>
@@ -38,7 +46,11 @@ const Layout = () => {
 				options={{
 					tabBarLabel: "Trips",
 					tabBarIcon: ({ color, size }) => (
-						<Ionicons name='sparkles-outline' color={color} size={size} />
+						<Ionicons
+							name='sparkles-outline'
+							color={color}
+							size={size}
+						/>
 					),
 				}}
 			></Tabs.Screen>
@@ -48,7 +60,11 @@ const Layout = () => {
 				options={{
 					tabBarLabel: "Inbox",
 					tabBarIcon: ({ color, size }) => (
-						<Ionicons name='chatbubble-outline' color={color} size={size} />
+						<Ionicons
+							name='chatbubble-outline'
+							color={color}
+							size={size}
+						/>
 					),
 				}}
 			></Tabs.Screen>
@@ -58,7 +74,11 @@ const Layout = () => {
 				options={{
 					tabBarLabel: "Profile",
 					tabBarIcon: ({ color, size }) => (
-						<Ionicons name='person-outline' color={color} size={size} />
+						<Ionicons
+							name='person-outline'
+							color={color}
+							size={size}
+						/>
 					),
 				}}
 			></Tabs.Screen>

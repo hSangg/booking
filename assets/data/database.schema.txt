@@ -1,0 +1,57 @@
+Table Room {
+  room_id string 
+  name string
+  summary string
+  transit string
+  house_rules string
+  thumbnail_url string
+  host_id string [ref: > User.user_id]
+  street string
+  smart_location string
+  country string
+  latitude string
+  longitude string
+  room_type string
+  bathrooms number
+  bedrooms  number
+  beds number
+  price string
+  weekly_price string
+  review string
+}
+
+Table User {
+  user_id string
+  user_name string
+  created_at datetime
+  host_thumbnail_url string
+
+  is_host boolean
+  host_room_count number
+}
+
+Table Reservation {
+  reservation_id string
+  user_id string [ref: > User.user_id]
+  room_id string [ref: > Room.room_id]
+  start_date datetime
+  end_date datetime
+  total_price number
+  created_at datetime
+  status string
+}
+
+Table Review {
+  room_id string [ref: > Room.room_id]
+  user_id string [ref: > User.user_id]
+  reservation_id string [ref: > Reservation.reservation_id]
+  star number
+  content_review string
+}
+
+Table Media {
+  media_id string
+  room_id string [ref: > Room.room_id]
+  uri string
+}
+

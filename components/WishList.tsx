@@ -8,10 +8,7 @@ import {
 import { defaultStyles } from "@/constants/Style"
 import { Ionicons } from "@expo/vector-icons"
 import { Link } from "expo-router"
-import Animated, {
-	FadeInRight,
-	FadeOutLeft,
-} from "react-native-reanimated"
+import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated"
 import { useEffect, useRef, useState } from "react"
 import {
 	BottomSheetFlatList,
@@ -22,32 +19,13 @@ import { Homestay } from "@/interface/Homestay"
 
 interface Props {
 	listings: any[]
-	// refresh: number
-	category: string
 }
 
-const Listings = ({ listings: items, category }: Props) => {
+const Listings = ({ listings: items }: Props) => {
 	const listRef = useRef<BottomSheetFlatListMethods>(null)
 	const [loading, setLoading] = useState<boolean>(false)
 
-	const scrollListTop = () => {
-		listRef.current?.scrollToOffset({
-			offset: 0,
-			animated: true,
-		})
-	}
-
-	useEffect(() => {
-		setLoading(true)
-
-		setTimeout(() => {
-			setLoading(false)
-		}, 200)
-	}, [category])
-
-	const renderRow: ListRenderItem<Homestay> = ({
-		item,
-	}) => (
+	const renderRow: ListRenderItem<any> = ({ item }) => (
 		<Link href={`/listing/${item.id}`} asChild>
 			<TouchableOpacity>
 				<Animated.View
@@ -56,48 +34,45 @@ const Listings = ({ listings: items, category }: Props) => {
 					exiting={FadeOutLeft}
 				>
 					<Animated.Image
-						source={{ uri: item.thumbnail_url || "" }} // Provide an empty string as a fallback if thumbnail_url is null
+						source={{ uri: item.medium_url }}
 						style={styles.image}
 					/>
-					<TouchableOpacity
-						style={{
-							position: "absolute",
-							right: 30,
-							top: 30,
-						}}
-					>
-						<Ionicons
-							name='heart-outline'
-							size={24}
-							color='#000'
-						/>
-					</TouchableOpacity>
+
 					<View
-						style={{
-							flexDirection: "row",
-							justifyContent: "space-between",
-						}}
+						style={{ flexDirection: "row", justifyContent: "space-between" }}
 					>
 						<Text
-							style={{ fontSize: 16, fontFamily: "mon-sb" }}
+							style={{
+								fontSize: 16,
+								fontFamily: "mon-sb",
+								textAlign: "center",
+								width: "75%",
+							}}
 						>
 							{item.name}
 						</Text>
+					</View>
+					<View>
+						<Text style={{ fontFamily: "mon" }}>{item.room_type}</Text>
 						<View style={{ flexDirection: "row", gap: 4 }}>
-							<Ionicons name='star' size={16} />
-							<Text style={{ fontFamily: "mon-sb" }}>
-								{item.review_scores_rating || 0 / 20}
-							</Text>
+							<Text style={{ fontFamily: "mon-sb" }}>€ {item.price}</Text>
+							<Text style={{ fontFamily: "mon" }}>night</Text>
 						</View>
 					</View>
-					<Text style={{ fontFamily: "mon" }}>
-						{item.room_type}
-					</Text>
-					<View style={{ flexDirection: "row", gap: 4 }}>
-						<Text style={{ fontFamily: "mon-sb" }}>
-							€ {item.price}
-						</Text>
-						<Text style={{ fontFamily: "mon" }}>night</Text>
+
+					<View
+						style={{
+							width: "auto",
+
+							borderColor: "#cccccc",
+							borderWidth: 1,
+							borderRadius: 20,
+							paddingHorizontal: 30,
+
+							paddingVertical: 10,
+						}}
+					>
+						<Text style={{ fontFamily: "mon" }}>{item.summary}</Text>
 					</View>
 				</Animated.View>
 			</TouchableOpacity>
@@ -106,14 +81,15 @@ const Listings = ({ listings: items, category }: Props) => {
 
 	return (
 		<View style={defaultStyles.container}>
+			<Text style={{ fontFamily: "mon-b", fontSize: 20, textAlign: "center" }}>
+				WishList
+			</Text>
 			<FlatList
 				renderItem={renderRow}
 				data={loading ? [] : items}
 				// ref={listRef}
 				ListHeaderComponent={
-					<Text style={styles.info}>
-						{items.length} homes
-					</Text>
+					<Text style={styles.info}>{items.length} homes</Text>
 				}
 			/>
 		</View>
@@ -124,11 +100,14 @@ const styles = StyleSheet.create({
 	listing: {
 		padding: 16,
 		gap: 10,
+		flexDirection: "column",
+
+		alignItems: "center",
 		marginVertical: 16,
 	},
 	image: {
-		width: "100%",
-		height: 300,
+		width: 350,
+		height: 350,
 		borderRadius: 10,
 	},
 	info: {

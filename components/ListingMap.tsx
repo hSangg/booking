@@ -1,12 +1,17 @@
-import { View, Text, StyleSheet } from "react-native"
-import React from "react"
+import {
+	View,
+	Text,
+	StyleSheet,
+	Dimensions,
+} from "react-native"
+import React, { useState } from "react"
 import { Marker, PROVIDER_GOOGLE } from "react-native-maps"
 import { Homestay } from "@/interface/Homestay"
 import { useRouter } from "expo-router"
 import MapView from "react-native-map-clustering"
 
 interface Props {
-	listings: any
+	listings: any[]
 }
 
 const INITIAL_REGION_VIETNAM = {
@@ -18,10 +23,22 @@ const INITIAL_REGION_VIETNAM = {
 
 const ListingMap = ({ listings }: Props) => {
 	const router = useRouter()
+	const [mapInitialized, setMapInitialized] =
+		useState(false)
+
 	const onMarkSelected = (mark: Homestay) => {
 		router.push(`/listing/${mark.id}`)
 	}
 
+	const onMapReady = async () => {
+		if (mapInitialized) {
+			return
+		}
+
+		// initialize map data here
+
+		setMapInitialized(true)
+	}
 	const renderCluster = (cluster: any) => {
 		const { id, geometry, onPress, properties } = cluster
 		return (
@@ -34,7 +51,9 @@ const ListingMap = ({ listings }: Props) => {
 				}}
 			>
 				<View style={styles.cluster}>
-					<Text style={styles.clusterText}>{properties.point_count}</Text>
+					<Text style={styles.clusterText}>
+						{properties.point_count}
+					</Text>
 				</View>
 			</Marker>
 		)
@@ -42,9 +61,10 @@ const ListingMap = ({ listings }: Props) => {
 	return (
 		<View style={styles.container}>
 			<MapView
+				style={styles.map}
+				onLayout={onMapReady}
 				animationEnabled={false}
 				clusterColor='#fff'
-				style={{ width: "100%", height: "100%" }}
 				showsUserLocation
 				provider={PROVIDER_GOOGLE}
 				showsMyLocationButton
@@ -57,12 +77,18 @@ const ListingMap = ({ listings }: Props) => {
 							onPress={() => onMarkSelected(x)}
 							key={i}
 							coordinate={{
-								latitude: x.geolocation.lat,
-								longitude: x.geolocation.lon,
+								latitude: x.latitude
+									? parseFloat(x.latitude)
+									: 0, // If latitude is null, default to 0
+								longitude: x.longitude
+									? parseFloat(x.longitude)
+									: 0, // If longitude is null, default to 0
 							}}
 						>
 							<View style={styles.marker}>
-								<Text style={styles.markerText}>₤{x.price}</Text>
+								<Text style={styles.markerText}>
+									₤{x.price}
+								</Text>
 							</View>
 						</Marker>
 					)
@@ -76,6 +102,12 @@ export default ListingMap
 
 const styles = StyleSheet.create({
 	container: {
+		flex: 1,
+	},
+	map: {
+		position: "absolute",
+		width: Dimensions.get("window").width,
+		height: Dimensions.get("window").height,
 		flex: 1,
 	},
 	marker: {

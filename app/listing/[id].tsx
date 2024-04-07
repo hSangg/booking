@@ -1,4 +1,8 @@
-import { useLocalSearchParams, useNavigation } from "expo-router"
+import {
+	router,
+	useLocalSearchParams,
+	useNavigation,
+} from "expo-router"
 import React, { useLayoutEffect } from "react"
 import {
 	View,
@@ -20,21 +24,24 @@ import Animated, {
 	useScrollViewOffset,
 } from "react-native-reanimated"
 import { defaultStyles } from "@/constants/Style"
+import { Homestay } from "@/interface/Homestay"
 
 const { width } = Dimensions.get("window")
 const IMG_HEIGHT = 340
 
 const DetailsPage = () => {
 	const { id } = useLocalSearchParams()
-	const listing = (listingsData as any[]).find((item) => item.id === id)
+	const listing = (listingsData as Homestay[]).find(
+		(item) => item.id === id
+	)
 	const navigation = useNavigation()
 	const scrollRef = useAnimatedRef<Animated.ScrollView>()
 
 	const shareListing = async () => {
 		try {
 			await Share.share({
-				title: listing.name,
-				url: listing.listing_url,
+				title: listing?.name || "",
+				url: listing?.listing_url || "",
 			})
 		} catch (err) {
 			console.log(err)
@@ -53,11 +60,22 @@ const DetailsPage = () => {
 			),
 			headerRight: () => (
 				<View style={styles.bar}>
-					<TouchableOpacity style={styles.roundButton} onPress={shareListing}>
-						<Ionicons name='share-outline' size={22} color={"#000"} />
+					<TouchableOpacity
+						style={styles.roundButton}
+						onPress={shareListing}
+					>
+						<Ionicons
+							name='share-outline'
+							size={22}
+							color={"#000"}
+						/>
 					</TouchableOpacity>
 					<TouchableOpacity style={styles.roundButton}>
-						<Ionicons name='heart-outline' size={22} color={"#000"} />
+						<Ionicons
+							name='heart-outline'
+							size={22}
+							color={"#000"}
+						/>
 					</TouchableOpacity>
 				</View>
 			),
@@ -66,7 +84,11 @@ const DetailsPage = () => {
 					style={styles.roundButton}
 					onPress={() => navigation.goBack()}
 				>
-					<Ionicons name='chevron-back' size={24} color={"#000"} />
+					<Ionicons
+						name='chevron-back'
+						size={24}
+						color={"#000"}
+					/>
 				</TouchableOpacity>
 			),
 		})
@@ -97,7 +119,11 @@ const DetailsPage = () => {
 
 	const headerAnimatedStyle = useAnimatedStyle(() => {
 		return {
-			opacity: interpolate(scrollOffset.value, [0, IMG_HEIGHT / 1.5], [0, 1]),
+			opacity: interpolate(
+				scrollOffset.value,
+				[0, IMG_HEIGHT / 1.5],
+				[0, 1]
+			),
 		}
 	}, [])
 
@@ -109,41 +135,54 @@ const DetailsPage = () => {
 				scrollEventThrottle={16}
 			>
 				<Animated.Image
-					source={{ uri: listing.xl_picture_url }}
+					source={{ uri: listing?.thumbnail_url || "" }}
 					style={[styles.image, imageAnimatedStyle]}
 					resizeMode='cover'
 				/>
 
 				<View style={styles.infoContainer}>
-					<Text style={styles.name}>{listing.name}</Text>
+					<Text style={styles.name}>{listing?.name}</Text>
 					<Text style={styles.location}>
-						{listing.room_type} in {listing.smart_location}
+						{listing?.room_type} in{" "}
+						{listing?.smart_location}
 					</Text>
 					<Text style={styles.rooms}>
-						{listing.guests_included} guests · {listing.bedrooms} bedrooms ·{" "}
-						{listing.beds} bed · {listing.bathrooms} bathrooms
+						{listing?.bedrooms} bedrooms · {listing?.beds}{" "}
+						bed · {listing?.bathrooms} bathrooms
 					</Text>
-					<View style={{ flexDirection: "row", gap: 4, alignItems: "center" }}>
+					<View
+						style={{
+							flexDirection: "row",
+							gap: 4,
+							alignItems: "center",
+						}}
+					>
 						<Ionicons name='star' size={16} />
 						<Text style={styles.ratings}>
-							{listing.review_scores_rating / 20} · {listing.number_of_reviews}{" "}
-							reviews
+							{listing?.review_scores_rating || 0 / 20} ·{" "}
 						</Text>
 					</View>
 					<View style={styles.divider} />
 
 					<View style={styles.hostView}>
-						<Image
-							source={{ uri: listing.host_picture_url }}
+						<View
+							// source={{ uri: listing.host_picture_url }}
 							style={styles.host}
 						/>
 
 						<View>
-							<Text style={{ fontSize: 14, fontFamily: "mon" }}>
-								Hosted by {listing.host_name}
+							<Text
+								style={{ fontSize: 14, fontFamily: "mon" }}
+							>
+								Hosted by {"JOIN NGUYEN"}
 							</Text>
-							<Text style={{ fontSize: 14, fontFamily: "mon-sb" }}>
-								Host since {listing.host_since}
+							<Text
+								style={{
+									fontSize: 14,
+									fontFamily: "mon-sb",
+								}}
+							>
+								Host since {"12/12/2003"}
 							</Text>
 						</View>
 					</View>
@@ -153,27 +192,50 @@ const DetailsPage = () => {
 					<View style={styles.detail}>
 						<Ionicons name='thumbs-up-outline' size={24} />
 						<View>
-							<Text style={{ fontFamily: "mon-b", fontSize: 16 }}>Summary</Text>
-							<Text style={styles.description}>{listing.summary}</Text>
+							<Text
+								style={{
+									fontFamily: "mon-b",
+									fontSize: 16,
+								}}
+							>
+								Summary
+							</Text>
+							<Text style={styles.description}>
+								{listing?.summary}
+							</Text>
 						</View>
 					</View>
 
 					<View style={{ ...styles.detail, marginTop: 12 }}>
 						<Ionicons name='car-outline' size={24} />
 						<View>
-							<Text style={{ fontFamily: "mon-b", fontSize: 16 }}>Transit</Text>
-							<Text style={styles.description}>{listing.transit}</Text>
+							<Text
+								style={{
+									fontFamily: "mon-b",
+									fontSize: 16,
+								}}
+							>
+								Transit
+							</Text>
+							<Text style={styles.description}>
+								{listing?.transit}
+							</Text>
 						</View>
 					</View>
 
 					<View style={{ ...styles.detail, marginTop: 12 }}>
 						<Ionicons name='diamond-outline' size={24} />
 						<View>
-							<Text style={{ fontFamily: "mon-b", fontSize: 16 }}>
+							<Text
+								style={{
+									fontFamily: "mon-b",
+									fontSize: 16,
+								}}
+							>
 								Amenities
 							</Text>
 							<Text style={styles.description}>
-								{listing.amenities.join(" • ")}
+								{listing?.amenities?.join(" • ")}
 							</Text>
 						</View>
 					</View>
@@ -192,14 +254,24 @@ const DetailsPage = () => {
 					}}
 				>
 					<TouchableOpacity style={styles.footerText}>
-						<Text style={styles.footerPrice}>€{listing.price}</Text>
+						<Text style={styles.footerPrice}>
+							€{listing?.price}
+						</Text>
 						<Text>night</Text>
 					</TouchableOpacity>
 
 					<TouchableOpacity
-						style={[defaultStyles.btn, { paddingRight: 20, paddingLeft: 20 }]}
+						onPress={() =>
+							router.push(`/reservation/${listing?.id}`)
+						}
+						style={[
+							defaultStyles.btn,
+							{ paddingRight: 20, paddingLeft: 20 },
+						]}
 					>
-						<Text style={defaultStyles.btnText}>Reserve</Text>
+						<Text style={defaultStyles.btnText}>
+							Reserve
+						</Text>
 					</TouchableOpacity>
 				</View>
 			</Animated.View>
