@@ -1,4 +1,5 @@
 import {
+	Link,
 	router,
 	useLocalSearchParams,
 	useNavigation,
@@ -165,7 +166,8 @@ const DetailsPage = () => {
 					<View style={styles.divider} />
 
 					<View style={styles.hostView}>
-						<View
+						<Link
+							href={`/host/${listing?.host_id}`}
 							// source={{ uri: listing.host_picture_url }}
 							style={styles.host}
 						/>
