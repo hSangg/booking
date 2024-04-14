@@ -1,7 +1,6 @@
 import Colors from "@/constants/Colors"
 import { defaultStyles } from "@/constants/Style"
 import { useWarmUpBrowser } from "@/hooks/useWarnUpBrowser"
-import { useOAuth } from "@clerk/clerk-expo"
 import { Ionicons } from "@expo/vector-icons"
 import { useRouter } from "expo-router"
 import React from "react"
@@ -17,29 +16,37 @@ const Login = () => {
 	useWarmUpBrowser()
 
 	const router = useRouter()
-	const { startOAuthFlow } = useOAuth({ strategy: "oauth_facebook" })
+	const handleTextInputChange = (text: string) => {
+		console.log(text)
+	}
 
-	const onPress = React.useCallback(async () => {
-		try {
-			const res = await startOAuthFlow()
-			console.log(res)
-		} catch (err) {
-			console.error("OAuth error", err)
-		}
-	}, [])
 	return (
 		<View style={style.container}>
 			<TextInput
+				id='email'
 				autoCapitalize='none'
 				placeholder='email'
-				style={[defaultStyles.inputField, { marginBottom: 10 }]}
+				style={[
+					defaultStyles.inputField,
+					{ marginBottom: 10 },
+				]}
+				onChangeText={(e) => {
+					handleTextInputChange(e)
+				}}
 			/>
 
 			<TextInput
+				id='password'
 				secureTextEntry
 				autoCapitalize='none'
 				placeholder='password'
-				style={[defaultStyles.inputField, { marginBottom: 30 }]}
+				style={[
+					defaultStyles.inputField,
+					{ marginBottom: 30 },
+				]}
+				onChangeText={(e) => {
+					handleTextInputChange(e)
+				}}
 			/>
 
 			<TouchableOpacity style={defaultStyles.btn}>
