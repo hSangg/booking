@@ -1,9 +1,11 @@
+import { UserAPI } from "@/api/UserAPI"
 import Colors from "@/constants/Colors"
 import { defaultStyles } from "@/constants/Style"
 import { useWarmUpBrowser } from "@/hooks/useWarnUpBrowser"
+import { User, useUserStore } from "@/store/useUserStore"
 import { Ionicons } from "@expo/vector-icons"
 import { useRouter } from "expo-router"
-import React from "react"
+import React, { useState } from "react"
 import {
 	StyleSheet,
 	Text,
@@ -14,10 +16,45 @@ import {
 
 const Login = () => {
 	useWarmUpBrowser()
+	const [data, setData] = useState({
+		email: "",
+		password: "",
+	})
+
+	const updateUser = useUserStore(
+		(state) => state.updateUser
+	)
 
 	const router = useRouter()
-	const handleTextInputChange = (text: string) => {
-		console.log(text)
+	const handleTextInputChange = async (
+		text: string,
+		inputType: string
+	) => {
+		setData((pre) => ({ ...pre, [inputType]: text }))
+	}
+
+	const handleLogin = async () => {
+		try {
+			console.log("run")
+			const res = await UserAPI.login(
+				data.email,
+				data.password
+			)
+			if (res.status === 200) {
+				const { name, email, phone_number } =
+					res?.data?.data
+				const user: User = {
+					username: name,
+					email,
+					phoneNumber: phone_number,
+					isLogin: true,
+				}
+				updateUser(user)
+				router.push("/(tabs)/profile")
+			}
+		} catch (error) {
+			console.log(error)
+		}
 	}
 
 	return (
@@ -31,7 +68,7 @@ const Login = () => {
 					{ marginBottom: 10 },
 				]}
 				onChangeText={(e) => {
-					handleTextInputChange(e)
+					handleTextInputChange(e, "email")
 				}}
 			/>
 
@@ -45,11 +82,14 @@ const Login = () => {
 					{ marginBottom: 30 },
 				]}
 				onChangeText={(e) => {
-					handleTextInputChange(e)
+					handleTextInputChange(e, "password")
 				}}
 			/>
 
-			<TouchableOpacity style={defaultStyles.btn}>
+			<TouchableOpacity
+				onPress={handleLogin}
+				style={defaultStyles.btn}
+			>
 				<Text style={defaultStyles.btnText}>Continue</Text>
 			</TouchableOpacity>
 
@@ -72,26 +112,6 @@ const Login = () => {
 					}}
 				></View>
 			</View>
-
-			{/* <View>
-				<TouchableOpacity style={style.btnOutline}>
-					<Ionicons
-						name='call-outline'
-						size={24}
-						style={defaultStyles.btnIcon}
-					/>
-					<Text style={style.btnOutlineText}>Continue with Phone</Text>
-				</TouchableOpacity>
-				<View style={{ marginVertical: 5 }}></View>
-				<TouchableOpacity onPress={onPress} style={style.btnOutline}>
-					<Ionicons
-						name='logo-google'
-						size={24}
-						style={defaultStyles.btnIcon}
-					/>
-					<Text style={style.btnOutlineText}>Continue with Google</Text>
-				</TouchableOpacity>
-			</View> */}
 
 			<View>
 				<TouchableOpacity
