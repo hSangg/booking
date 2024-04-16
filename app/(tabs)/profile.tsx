@@ -1,7 +1,13 @@
-import { View, Text, Button, StyleSheet, Image } from "react-native"
+import {
+	View,
+	Text,
+	Button,
+	StyleSheet,
+	Image,
+} from "react-native"
 import React, { useState } from "react"
 import { useAuth } from "@clerk/clerk-expo"
-import { Link, Stack } from "expo-router"
+import { Link, Stack, router } from "expo-router"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { defaultStyles } from "@/constants/Style"
 import { Ionicons } from "@expo/vector-icons"
@@ -11,19 +17,12 @@ import {
 	TouchableOpacity,
 } from "react-native-gesture-handler"
 import Colors from "@/constants/Colors"
+import { useUserStore } from "@/store/useUserStore"
 
 const profile = () => {
-	const { signOut, isSignedIn } = useAuth()
 	const [edit, setEdit] = useState(false)
 
-	const [firstName, setFirstName] = useState("Cao")
-	const [lastName, setLastName] = useState("Cao")
-	const [user, setUser] = useState({
-		imageUrl: "https://avatars.githubusercontent.com/u/92299727?s=96&v=4",
-		createdAt: "12-12-2003",
-	})
-
-	const email = "hoai.sang050@gmail.com"
+	const user = useUserStore((state) => state.user)
 
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
@@ -35,21 +34,38 @@ const profile = () => {
 
 			<SafeAreaView style={defaultStyles.container}>
 				<View style={styles.headerContainer}>
-					<Text style={styles.header}>Profile</Text>
-					<Ionicons name='notifications-outline' size={26} />
+					<Text style={styles.header}>
+						Profile {user.username}
+					</Text>
+					<Ionicons
+						name='notifications-outline'
+						size={26}
+					/>
 				</View>
 
 				<View style={styles.card}>
 					<TouchableOpacity>
-						<Image source={{ uri: user?.imageUrl }} style={styles.avatar} />
+						<Image
+							source={{
+								uri: "https://avatars.githubusercontent.com/u/92299727?s=96&v=4",
+							}}
+							style={styles.avatar}
+						/>
 					</TouchableOpacity>
 					<View style={{ flexDirection: "row", gap: 6 }}>
 						{!edit && (
 							<View style={styles.editRow}>
-								<Text style={{ fontFamily: "mon-b", fontSize: 22 }}>
-									{firstName} {lastName}
+								<Text
+									style={{
+										fontFamily: "mon-b",
+										fontSize: 22,
+									}}
+								>
+									{user.username}
 								</Text>
-								<TouchableOpacity onPress={() => setEdit(true)}>
+								<TouchableOpacity
+									onPress={() => setEdit(true)}
+								>
 									<Ionicons
 										name='create-outline'
 										size={24}
@@ -58,19 +74,25 @@ const profile = () => {
 								</TouchableOpacity>
 							</View>
 						)}
-						{edit && (
+						{/* {edit && (
 							<View style={styles.editRow}>
 								<TextInput
 									placeholder='First Name'
 									value={firstName || ""}
 									onChangeText={setFirstName}
-									style={[defaultStyles.inputField, { width: 100 }]}
+									style={[
+										defaultStyles.inputField,
+										{ width: 100 },
+									]}
 								/>
 								<TextInput
 									placeholder='Last Name'
 									value={lastName || ""}
 									onChangeText={setLastName}
-									style={[defaultStyles.inputField, { width: 100 }]}
+									style={[
+										defaultStyles.inputField,
+										{ width: 100 },
+									]}
 								/>
 								<TouchableOpacity>
 									<Ionicons
@@ -80,20 +102,22 @@ const profile = () => {
 									/>
 								</TouchableOpacity>
 							</View>
-						)}
+						)} */}
 					</View>
-					<Text>{email}</Text>
-					<Text>Since {user?.createdAt}</Text>
+					<Text>hoai.sang050@gmail.com</Text>
+					<Text>Since {"16/05/2003"}</Text>
 				</View>
 
-				{isSignedIn && (
+				{user.isLogin && (
 					<Button
 						title='Log Out'
-						onPress={() => signOut()}
+						onPress={() => {
+							router.push("/(modals)/login")
+						}}
 						color={Colors.dark}
 					/>
 				)}
-				{!isSignedIn && (
+				{!user.isLogin && (
 					<Link href={"/(modals)/login"} asChild>
 						<Button title='Log In' color={Colors.dark} />
 					</Link>
