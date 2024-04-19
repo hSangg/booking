@@ -1,10 +1,13 @@
+import { UserAPI } from "@/api/UserAPI"
 import Colors from "@/constants/Colors"
 import { defaultStyles } from "@/constants/Style"
 import { useWarmUpBrowser } from "@/hooks/useWarnUpBrowser"
 import { useOAuth } from "@clerk/clerk-expo"
 import { Ionicons } from "@expo/vector-icons"
 import { useRouter } from "expo-router"
-import React from "react"
+import { User, useUserStore } from "@/store/useUserStore"
+import React, { useState } from "react"
+import { ToastAndroid } from "react-native"
 import {
 	StyleSheet,
 	Text,
@@ -15,7 +18,13 @@ import {
 
 const Signup = () => {
 	useWarmUpBrowser()
-
+	const [data, setData] = useState({
+		email: "",
+		name: "",
+		password: "",
+		reTypePassword: "",
+		phone_number: ""
+	})
 	const router = useRouter()
 	const { startOAuthFlow } = useOAuth({ strategy: "oauth_facebook" })
 
@@ -27,38 +36,94 @@ const Signup = () => {
 			console.error("OAuth error", err)
 		}
 	}, [])
+	const handleTextInputChange = async (
+		text: string,
+		inputType: string
+	) => {
+		setData((pre) => ({ ...pre, [inputType]: text }))
+	}
+	const updateUser = useUserStore(
+		(state) => state.updateUser
+	)
+	const handleSignUp = async () => {
+		try {
+			if (data.password == data.reTypePassword) {
+				const res = await UserAPI.register(
+					data.email,
+					data.name,
+					data.password,
+					data.phone_number
+				)
+				if (res.status == 201) {
+					const { email, name, phone_number } = res?.data?.data;
+					const user: User = {
+						username: name,
+						email,
+						phoneNumber: phone_number,
+						isLogin: true
+					}
+					ToastAndroid.showWithGravity(
+						'Sign up successfully',
+						ToastAndroid.SHORT,
+						ToastAndroid.BOTTOM
+					);
+					updateUser(user)
+					router.push("/(tabs)/profile")
+				}
+			}
+		} catch (err) {
+			console.log(err)
+		}
+	}
 	return (
 		<View style={style.container}>
 			<TextInput
 				autoCapitalize='none'
 				placeholder='fullname'
 				style={[defaultStyles.inputField, { marginBottom: 10 }]}
+				onChangeText={(e) => {
+					handleTextInputChange(e, "name")
+				}}
 			/>
 
 			<TextInput
 				autoCapitalize='none'
 				placeholder='email'
 				style={[defaultStyles.inputField, { marginBottom: 10 }]}
+				onChangeText={(e) => {
+					handleTextInputChange(e, "email")
+				}}
 			/>
 
 			<TextInput
 				autoCapitalize='none'
 				placeholder='phone'
 				style={[defaultStyles.inputField, { marginBottom: 10 }]}
+				onChangeText={(e) => {
+					handleTextInputChange(e, "phone_number")
+				}}
 			/>
 
 			<TextInput
 				autoCapitalize='none'
 				placeholder='password'
 				style={[defaultStyles.inputField, { marginBottom: 10 }]}
+				secureTextEntry={true}
+				onChangeText={(e) => {
+					handleTextInputChange(e, "password")
+				}}
 			/>
 
 			<TextInput
 				autoCapitalize='none'
 				placeholder='retype password'
 				style={[defaultStyles.inputField, { marginBottom: 30 }]}
+				secureTextEntry={true}
+				onChangeText={(e) => {
+					handleTextInputChange(e, "reTypePassword")
+				}}
 			/>
-			<TouchableOpacity style={defaultStyles.btn}>
+			<TouchableOpacity style={defaultStyles.btn} onPress={handleSignUp}>
 				<Text style={defaultStyles.btnText}>Continue</Text>
 			</TouchableOpacity>
 
