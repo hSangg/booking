@@ -5,7 +5,7 @@ import ListingBottomSheet from "@/components/ListingBottomSheet"
 import ListingMap from "@/components/ListingMap"
 import { Homestay } from "@/interface/Homestay"
 import { Stack } from "expo-router"
-import React, { useMemo, useState } from "react"
+import React, { useState } from "react"
 import { View } from "react-native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 
@@ -17,6 +17,7 @@ const Index = () => {
 	const onDataChanged = (category: string) => {
 		setCategory(category)
 	}
+
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<View
@@ -35,7 +36,7 @@ const Index = () => {
 						),
 					}}
 				/>
-				{/* <Listing listings={items} category={category} /> */}
+
 				<ListingMap listings={homeStayList.slice(0, 10)} />
 				<ListingBottomSheet
 					listing={homeStayList.slice(0, 10)}

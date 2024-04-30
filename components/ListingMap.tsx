@@ -1,14 +1,18 @@
-import {
-	View,
-	Text,
-	StyleSheet,
-	Dimensions,
-} from "react-native"
-import React, { useState } from "react"
-import { Marker, PROVIDER_GOOGLE } from "react-native-maps"
+import LocationAPI from "@/api/LocationAPI"
 import { Homestay } from "@/interface/Homestay"
+import { DMS } from "@/interface/common"
+import { Ionicons } from "@expo/vector-icons"
 import { useRouter } from "expo-router"
+import React, { useRef, useState } from "react"
+import {
+	Dimensions,
+	StyleSheet,
+	Text,
+	TextInput,
+	View,
+} from "react-native"
 import MapView from "react-native-map-clustering"
+import { Marker, PROVIDER_GOOGLE } from "react-native-maps"
 
 interface Props {
 	listings: any[]
@@ -23,8 +27,12 @@ const INITIAL_REGION_VIETNAM = {
 
 const ListingMap = ({ listings }: Props) => {
 	const router = useRouter()
+	const mapRef: any = useRef()
 	const [mapInitialized, setMapInitialized] =
 		useState(false)
+
+	const [searchDestination, setSearchDestination] =
+		useState<string>("")
 
 	const onMarkSelected = (mark: Homestay) => {
 		router.push(`/listing/${mark.id}`)
@@ -34,8 +42,6 @@ const ListingMap = ({ listings }: Props) => {
 		if (mapInitialized) {
 			return
 		}
-
-		// initialize map data here
 
 		setMapInitialized(true)
 	}
@@ -58,9 +64,30 @@ const ListingMap = ({ listings }: Props) => {
 			</Marker>
 		)
 	}
+	const animatedToRegion = (la: number, long: number) => {
+		let region = {
+			latitude: la,
+			longitude: long,
+			latitudeDelta: 0.05,
+			longitudeDelta: 0.05,
+		}
+
+		mapRef.current.animateToRegion(region, 2000)
+	}
+
+	const handleSubmit = async () => {
+		console.log("search destination: ", searchDestination)
+		const response: DMS = await LocationAPI.searchLocation(
+			searchDestination
+		)
+
+		animatedToRegion(response.la, response.long)
+	}
+
 	return (
 		<View style={styles.container}>
 			<MapView
+				ref={mapRef}
 				style={styles.map}
 				onLayout={onMapReady}
 				animationEnabled={false}
@@ -94,6 +121,20 @@ const ListingMap = ({ listings }: Props) => {
 					)
 				})}
 			</MapView>
+			<View style={styles.searchBox}>
+				<Ionicons
+					name='location-outline'
+					color='#27272a'
+					size={25}
+				/>
+				<TextInput
+					value={searchDestination}
+					onChangeText={setSearchDestination}
+					onSubmitEditing={handleSubmit}
+					placeholder='Know destination? Search here...'
+					style={styles.inputStyle}
+				/>
+			</View>
 		</View>
 	)
 }
@@ -103,6 +144,28 @@ export default ListingMap
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+	},
+	inputStyle: {
+		width: "100%",
+		fontSize: 18,
+
+		fontFamily: "mon-sb",
+		color: "#0a0a0a",
+	},
+	searchBox: {
+		position: "absolute",
+		left: 0,
+		right: 0,
+		height: 50,
+		top: 0,
+		paddingHorizontal: 10,
+		backgroundColor: "white",
+		flexDirection: "row",
+		gap: 10,
+
+		alignItems: "center",
+		borderBottomLeftRadius: 30, // Add this line
+		borderBottomRightRadius: 30, // Add this line
 	},
 	map: {
 		position: "absolute",

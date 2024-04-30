@@ -19,14 +19,20 @@ interface Props {
 
 const ExploreHeader = ({ onCategoryChanged }: Props) => {
 	const scrollRef = useRef<ScrollView>(null)
-	const itemsRef = useRef<Array<TouchableOpacity | null>>([])
+	const itemsRef = useRef<Array<TouchableOpacity | null>>(
+		[]
+	)
 	const [activeIndex, setActiveIndex] = useState(0)
 
 	const selectCategory = (index: number) => {
 		const selected = itemsRef.current[index]
 		setActiveIndex(index)
 		selected?.measure((x) => {
-			scrollRef.current?.scrollTo({ x: x - 16, y: 0, animated: true })
+			scrollRef.current?.scrollTo({
+				x: x - 16,
+				y: 0,
+				animated: true,
+			})
 		})
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
 		onCategoryChanged(categories[index].name)
@@ -41,8 +47,15 @@ const ExploreHeader = ({ onCategoryChanged }: Props) => {
 							<View style={styles.searchBtn}>
 								<Ionicons name='search' size={24} />
 								<View>
-									<Text style={{ fontFamily: "mon-sb" }}>Where to?</Text>
-									<Text style={{ color: Colors.grey, fontFamily: "mon" }}>
+									<Text style={{ fontFamily: "mon-sb" }}>
+										Where to?
+									</Text>
+									<Text
+										style={{
+											color: Colors.grey,
+											fontFamily: "mon",
+										}}
+									>
 										Anywhere · Any week
 									</Text>
 								</View>
@@ -51,7 +64,10 @@ const ExploreHeader = ({ onCategoryChanged }: Props) => {
 					</Link>
 
 					<TouchableOpacity style={styles.filterButton}>
-						<Ionicons size={21} name='color-filter-outline' />
+						<Ionicons
+							size={21}
+							name='color-filter-outline'
+						/>
 					</TouchableOpacity>
 				</View>
 
@@ -84,7 +100,11 @@ const ExploreHeader = ({ onCategoryChanged }: Props) => {
 								<MaterialIcons
 									name={item.icon as any}
 									size={24}
-									color={activeIndex === index ? "#000" : Colors.grey}
+									color={
+										activeIndex === index
+											? "#000"
+											: Colors.grey
+									}
 								/>
 								<Text
 									style={

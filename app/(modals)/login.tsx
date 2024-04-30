@@ -93,6 +93,20 @@ const Login = () => {
 				<Text style={defaultStyles.btnText}>Continue</Text>
 			</TouchableOpacity>
 
+			<TouchableOpacity
+				onPress={() => {
+					router.push("/(modals)/inputEmail")
+				}}
+				style={{
+					...defaultStyles.btnCustom_1,
+					marginTop: 15,
+				}}
+			>
+				<Text style={defaultStyles.btnText}>
+					Forget Your Password?
+				</Text>
+			</TouchableOpacity>
+
 			<View style={style.seperatorView}>
 				<View
 					style={{
