@@ -1,6 +1,5 @@
-import { resolveHref } from "expo-router/build/link/href"
-import { axiosClient } from "./AxiosClient"
 import { DMS } from "@/interface/common"
+import { axiosClient } from "./AxiosClient"
 
 const LocationAPI = {
 	searchLocation: async (where: string): Promise<DMS> => {

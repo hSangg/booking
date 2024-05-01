@@ -1,6 +1,6 @@
-import { View, Text } from "react-native"
-import React from "react"
-import { Stack } from "expo-router"
+import { View, Text, ToastAndroid } from "react-native"
+import React, { useState } from "react"
+import { Stack, router } from "expo-router"
 import { SafeAreaView } from "react-native-safe-area-context"
 import {
 	GestureHandlerRootView,
@@ -8,8 +8,31 @@ import {
 } from "react-native-gesture-handler"
 import { defaultStyles } from "@/constants/Style"
 import { TouchableOpacity } from "@gorhom/bottom-sheet"
+import { useForgetPasswordStore } from "@/store/useForgetPasswordStore"
+import { UserAPI } from "@/api/UserAPI"
 
 const forgetPassword = () => {
+	const [OTP, setOtp] = useState<string>("")
+	const email = useForgetPasswordStore(
+		(state) => state.email
+	)
+	const handleSubmit = async () => {
+		try {
+			const res = await UserAPI.verityOtp(OTP, email)
+			console.log("email: " + email)
+			console.log("OTP: " + OTP)
+			console.log("isValidOTP: ", res)
+			if (res?.status === "SUCCESS") {
+				// call API change password
+				router.push("/(information)/congatulation")
+			} else {
+				ToastAndroid.show(
+					"Oh no! This is an invalid otp, please try again 😥😔😭🥺🥹😓 !",
+					ToastAndroid.SHORT
+				)
+			}
+		} catch (error) {}
+	}
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<SafeAreaView
@@ -35,6 +58,9 @@ const forgetPassword = () => {
 				</Text>
 				<TextInput
 					id='identification_code'
+					value={OTP}
+					onChangeText={setOtp}
+					onSubmitEditing={handleSubmit}
 					autoCapitalize='none'
 					placeholder='your code'
 					keyboardType='numeric'
@@ -42,7 +68,6 @@ const forgetPassword = () => {
 						defaultStyles.inputField,
 						{
 							marginTop: 20,
-
 							fontFamily: "mon",
 							fontSize: 20,
 							textAlign: "center",
@@ -51,6 +76,7 @@ const forgetPassword = () => {
 				/>
 
 				<TouchableOpacity
+					onPress={handleSubmit}
 					style={{ ...defaultStyles.btn, marginTop: 10 }}
 				>
 					<Text style={defaultStyles.btnText}>

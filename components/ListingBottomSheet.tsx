@@ -1,14 +1,11 @@
-import { View, Text } from "react-native"
-import React, { useMemo } from "react"
+import Colors from "@/constants/Colors"
 import { Homestay } from "@/interface/Homestay"
 import BottomSheet, {
-	BottomSheetModal,
 	BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet"
-import { useRef } from "react"
+import React, { useMemo, useRef } from "react"
+import { View } from "react-native"
 import Listings from "./Listing"
-import Colors from "@/constants/Colors"
-import { GestureHandlerRootView } from "react-native-gesture-handler"
 
 interface Props {
 	listing: Homestay[]

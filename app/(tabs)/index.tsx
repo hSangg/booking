@@ -37,9 +37,9 @@ const Index = () => {
 					}}
 				/>
 
-				<ListingMap listings={homeStayList.slice(0, 10)} />
+				<ListingMap listings={homeStayList.slice(0, 20)} />
 				<ListingBottomSheet
-					listing={homeStayList.slice(0, 10)}
+					listing={homeStayList.slice(0, 20)}
 					category={category}
 				/>
 			</View>

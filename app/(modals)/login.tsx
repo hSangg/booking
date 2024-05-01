@@ -129,7 +129,10 @@ const Login = () => {
 
 			<View>
 				<TouchableOpacity
-					onPress={() => router.push("/(modals)/signup")}
+					onPress={() => {
+						router.push("/(modals)/signup")
+						// router.push("/(information)/congatulation")
+					}}
 					style={style.btnOutline}
 				>
 					<Ionicons

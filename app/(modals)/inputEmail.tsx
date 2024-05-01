@@ -1,8 +1,10 @@
+import { UserAPI } from "@/api/UserAPI"
 import { defaultStyles } from "@/constants/Style"
+import { useForgetPasswordStore } from "@/store/useForgetPasswordStore"
 import { TouchableOpacity } from "@gorhom/bottom-sheet"
 import { Stack, router } from "expo-router"
-import React from "react"
-import { Text } from "react-native"
+import React, { useState } from "react"
+import { Text, ToastAndroid } from "react-native"
 import {
 	GestureHandlerRootView,
 	TextInput,
@@ -10,6 +12,26 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context"
 
 const inputEmail = () => {
+	const [email, setEmail] = useState<string>("")
+	const updateEmail = useForgetPasswordStore(
+		(state: any) => state.updateEmail
+	)
+
+	const handleSubmit = async () => {
+		try {
+			const res = await UserAPI.forgetPassword(email)
+			if (res?.status === "SUCCESS") {
+				updateEmail(email)
+				router.push("/(modals)/forgetPassword")
+			}
+		} catch (error) {
+			ToastAndroid.show(
+				"Oh no! This is an invalid email, please try again 😥😔😭🥺🥹😓 !",
+				ToastAndroid.SHORT
+			)
+		}
+	}
+
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<SafeAreaView
@@ -33,6 +55,8 @@ const inputEmail = () => {
 					Please input your email
 				</Text>
 				<TextInput
+					value={email}
+					onChangeText={setEmail}
 					id='email_finding'
 					autoCapitalize='none'
 					placeholder='your email'
@@ -40,7 +64,6 @@ const inputEmail = () => {
 						defaultStyles.inputField,
 						{
 							marginTop: 20,
-
 							fontFamily: "mon",
 							fontSize: 20,
 							textAlign: "center",
@@ -49,9 +72,7 @@ const inputEmail = () => {
 				/>
 
 				<TouchableOpacity
-					onPress={() => {
-						router.push("/(modals)/forgetPassword")
-					}}
+					onPress={handleSubmit}
 					style={{ ...defaultStyles.btn, marginTop: 10 }}
 				>
 					<Text style={defaultStyles.btnText}>
