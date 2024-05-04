@@ -4,6 +4,7 @@ export interface User {
 	phoneNumber: string
 	email: string
 	isLogin: boolean
+	created_at: Date
 }
 
 type State = {
@@ -22,6 +23,7 @@ export const useUserStore = create<State & Action>(
 			email: "",
 			phoneNumber: "",
 			isLogin: false,
+			created_at: new Date(),
 		},
 		updateUser: (user: User) => set(() => ({ user: user })),
 	})

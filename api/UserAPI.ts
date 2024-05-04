@@ -19,7 +19,7 @@ export const UserAPI = {
 				},
 			}
 		)
-		console.log("call_done")
+		console.log("call_login")
 		return response
 	},
 

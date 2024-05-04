@@ -11,6 +11,7 @@ import ModalHeader from "@/components/ModalHeader"
 import AppLoading from "expo-app-loading"
 import * as SplashScreen from "expo-splash-screen"
 import * as Font from "expo-font"
+import { getValueSecureStore } from "@/store/SecureStore"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -113,11 +114,25 @@ function RootLayoutNav() {
 	const colorScheme = useColorScheme()
 	const router = useRouter()
 
-	const { isLoaded, isSignedIn } = useAuth()
-	useEffect(() => {
-		if (isLoaded && !isSignedIn)
+	// const { isLoaded, isSignedIn } = useAuth()
+	// useEffect(() => {
+	// 	if (isLoaded && !isSignedIn)
+	// 		router.push("/(modals)/login")
+	// }, [isLoaded])
+
+	const checkEmailLoged = async () => {
+		const email = await getValueSecureStore("email")
+		if (email) {
+			console.log("loginWithoutEmailField")
+			router.push("/(modals)/loginWithoutEmailField")
+		} else {
 			router.push("/(modals)/login")
-	}, [isLoaded])
+		}
+	}
+
+	useEffect(() => {
+		checkEmailLoged()
+	}, [])
 
 	return (
 		<Stack>

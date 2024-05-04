@@ -18,11 +18,17 @@ import {
 } from "react-native-gesture-handler"
 import Colors from "@/constants/Colors"
 import { useUserStore } from "@/store/useUserStore"
+import { deleteValueSecureStore } from "@/store/SecureStore"
 
 const profile = () => {
 	const [edit, setEdit] = useState(false)
 
 	const user = useUserStore((state) => state.user)
+
+	const handleLogout = async () => {
+		deleteValueSecureStore("email")
+		router.push("/(modals)/login")
+	}
 
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
@@ -74,46 +80,15 @@ const profile = () => {
 								</TouchableOpacity>
 							</View>
 						)}
-						{/* {edit && (
-							<View style={styles.editRow}>
-								<TextInput
-									placeholder='First Name'
-									value={firstName || ""}
-									onChangeText={setFirstName}
-									style={[
-										defaultStyles.inputField,
-										{ width: 100 },
-									]}
-								/>
-								<TextInput
-									placeholder='Last Name'
-									value={lastName || ""}
-									onChangeText={setLastName}
-									style={[
-										defaultStyles.inputField,
-										{ width: 100 },
-									]}
-								/>
-								<TouchableOpacity>
-									<Ionicons
-										name='checkmark-outline'
-										size={24}
-										color={Colors.dark}
-									/>
-								</TouchableOpacity>
-							</View>
-						)} */}
 					</View>
-					<Text>hoai.sang050@gmail.com</Text>
+					<Text>{user.email}</Text>
 					<Text>Since {"16/05/2003"}</Text>
 				</View>
 
 				{user.isLogin && (
 					<Button
 						title='Log Out'
-						onPress={() => {
-							router.push("/(modals)/login")
-						}}
+						onPress={handleLogout}
 						color={Colors.dark}
 					/>
 				)}
