@@ -28,10 +28,10 @@ const LoginWithoutEmailField = () => {
 	const handleLogin = async () => {
 		try {
 			const email = await getValueSecureStore("email")
-			console.log("email: ", email)
-			console.log("password: ", password)
+
 			if (email) {
 				const res = await UserAPI.login(email, password)
+				console.log(res?.data)
 				if (res?.status === 200) {
 					const { name, email, phone_number, created_at } =
 						res?.data?.data
