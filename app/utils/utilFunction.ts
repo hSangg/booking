@@ -16,4 +16,34 @@ export const UtilFunction = {
 
 		return days
 	},
+	formatToHostSince: (isoTimestamp: Date) => {
+		const date = new Date(isoTimestamp)
+		const day = date
+			.getUTCDate()
+			.toString()
+			.padStart(2, "0")
+		const month = (date.getUTCMonth() + 1)
+			.toString()
+			.padStart(2, "0")
+		const year = date.getUTCFullYear()
+		return `${day}/${month}/${year}`
+	},
+}
+
+export function createQueryString(params: any) {
+	let queryString = ""
+	for (const key in params) {
+		if (
+			params.hasOwnProperty(key) &&
+			params[key] !== null
+		) {
+			if (queryString.length > 0) {
+				queryString += "&"
+			}
+			queryString += `${key}=${encodeURIComponent(
+				params[key]
+			)}`
+		}
+	}
+	return queryString
 }

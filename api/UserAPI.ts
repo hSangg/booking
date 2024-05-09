@@ -63,7 +63,6 @@ export const UserAPI = {
 			}
 		)
 		console.log(response)
-		console.log("response.data: ", response.data)
 		return response.data
 	},
 	verityOtp: async (OTP: string, email: string) => {

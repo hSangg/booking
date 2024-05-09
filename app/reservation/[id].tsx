@@ -24,7 +24,7 @@ import Animated, {
 // @ts-ignore
 
 import sampleRoomReservation from "@/assets/data/reservation.datasample.json"
-import { Homestay } from "@/interface/Homestay"
+import { Room } from "@/interface/Room"
 
 import { UtilFunction } from "../utils/utilFunction"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -56,6 +56,8 @@ const guestsGropus = [
 	},
 ]
 
+const bookedDate = ["2024-05-20", "2024-05-16"]
+
 const DetailPage = () => {
 	const { id } = useLocalSearchParams()
 	const [dateRange, setDateRange] = useState({
@@ -75,7 +77,7 @@ const DetailPage = () => {
 	// get data of room by id, render to UI
 
 	// I load data sample to UI
-	const sampleRoom: Homestay = sampleRoomReservation
+	const sampleRoom: any = sampleRoomReservation
 	const price = sampleRoom.price
 
 	//
@@ -105,9 +107,12 @@ const DetailPage = () => {
 	}
 
 	const handleDayPress = (date: any) => {
+		console.log("date: >>>>", date)
 		const { startDate, endDate } = dateRange
 		console.log("start: ", startDate, " end: ", endDate)
-
+		if (isDateXAfterDateY(startDate, endDate)) {
+			console.log("1")
+		}
 		if (!startDate) {
 			// Set selected date as start date
 			setDateRange({
@@ -202,6 +207,7 @@ const DetailPage = () => {
 					{openCard == 1 && (
 						<Animated.View>
 							<Calendar
+								firstDay={0}
 								style={{
 									borderRadius: 10,
 									elevation: 4,
@@ -321,8 +327,15 @@ function generateMarkedDates(
 		color: "#FF385C",
 		dotColor: "transparent",
 	}
+	console.log("markedDates: =>>>>", markedDates)
 
-	return markedDates
+	return {
+		...markedDates,
+		"2024-05-20": {
+			disabled: true,
+			disableTouchEvent: true,
+		},
+	}
 }
 
 const styles = StyleSheet.create({

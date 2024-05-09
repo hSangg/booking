@@ -1,5 +1,5 @@
 import Colors from "@/constants/Colors"
-import { Homestay } from "@/interface/Homestay"
+import { Room } from "@/interface/Room"
 import BottomSheet, {
 	BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet"
@@ -8,7 +8,7 @@ import { View } from "react-native"
 import Listings from "./Listing"
 
 interface Props {
-	listing: Homestay[]
+	listing: Room[]
 	category: string
 }
 
