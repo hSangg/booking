@@ -1,5 +1,5 @@
 import LocationAPI from "@/api/LocationAPI"
-import { Homestay } from "@/interface/Homestay"
+import { Room } from "@/interface/Room"
 import { DMS } from "@/interface/common"
 import { Ionicons } from "@expo/vector-icons"
 import { useRouter } from "expo-router"
@@ -34,8 +34,8 @@ const ListingMap = ({ listings }: Props) => {
 	const [searchDestination, setSearchDestination] =
 		useState<string>("")
 
-	const onMarkSelected = (mark: Homestay) => {
-		router.push(`/listing/${mark.id}`)
+	const onMarkSelected = (mark: Room) => {
+		router.push(`/listing/${mark._id}`)
 	}
 
 	const onMapReady = async () => {
@@ -98,17 +98,17 @@ const ListingMap = ({ listings }: Props) => {
 				renderCluster={renderCluster}
 				initialRegion={INITIAL_REGION_VIETNAM}
 			>
-				{listings.map((x: Homestay, i: number) => {
+				{listings.map((x: Room, i: number) => {
 					return (
 						<Marker
 							onPress={() => onMarkSelected(x)}
 							key={i}
 							coordinate={{
 								latitude: x.latitude
-									? parseFloat(x.latitude)
+									? parseFloat(x.latitude.toString())
 									: 0, // If latitude is null, default to 0
 								longitude: x.longitude
-									? parseFloat(x.longitude)
+									? parseFloat(x.longitude.toString())
 									: 0, // If longitude is null, default to 0
 							}}
 						>

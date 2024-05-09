@@ -29,6 +29,7 @@ const Login = () => {
 	const passwordRef = useRef<any>()
 
 	const [emailError, setEmailError] = useState<any>(null)
+
 	const [passwordError, setPasswordError] =
 		useState<any>(null)
 
@@ -119,17 +120,20 @@ const Login = () => {
 					}
 					updateUser(user)
 					saveValueSecureStore("email", user.email)
+					saveValueSecureStore("password", data.password)
 					router.push("/(tabs)/profile")
+				} else {
+					setPasswordError("Incorrect email or password")
 				}
 			} catch (error) {
+				setPasswordError("Incorrect email or password")
+				setEmailError("Incorrect email or password")
 				console.log(error)
 			}
 		}
 	}
 
-	const handelSignInWithGoogle = async () => {
-		
-	}
+	const handelSignInWithGoogle = async () => {}
 
 	return (
 		<View style={style.container}>
@@ -148,9 +152,10 @@ const Login = () => {
 					handleTextInputChange(e, "email")
 				}}
 			/>
-			{emailError && (
-				<Text style={style.errorText}>{emailError}</Text>
-			)}
+			{emailError &&
+				emailError != "Incorrect email or password" && (
+					<Text style={style.errorText}>{emailError}</Text>
+				)}
 
 			<TextInput
 				id='password'

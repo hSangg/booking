@@ -35,6 +35,7 @@ const Signup = () => {
 		reTypePassword: "",
 		phone_number: "",
 	})
+	const [signupError, setSigupError] = useState("")
 	const router = useRouter()
 	const { startOAuthFlow } = useOAuth({
 		strategy: "oauth_facebook",
@@ -99,13 +100,11 @@ const Signup = () => {
 	}
 
 	const isValidEmail = (email: string) => {
-		// Basic email format validation
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 		return emailRegex.test(email)
 	}
 
 	const isValidPhoneNumber = (phoneNumber: string) => {
-		// Basic phone number format validation (10 digits)
 		const phoneRegex = /^\d{10}$/
 		return phoneRegex.test(phoneNumber)
 	}
@@ -137,10 +136,13 @@ const Signup = () => {
 				)
 				updateUser(user)
 				saveValueSecureStore("email", user.email)
+				saveValueSecureStore("password", data.password)
 				router.push("/(tabs)/profile")
+			} else {
+				console.log(res)
 			}
 		} catch (err) {
-			console.log(err)
+			setSigupError("Email is registed, try anther one!")
 		}
 	}
 
@@ -233,14 +235,16 @@ const Signup = () => {
 				</Text>
 			) : null}
 
+			{signupError ? (
+				<Text style={style.errorText}>{signupError}</Text>
+			) : null}
+
 			<TouchableOpacity
 				style={defaultStyles.btn}
 				onPress={handleSignUp}
 			>
 				<Text style={defaultStyles.btnText}>Continue</Text>
 			</TouchableOpacity>
-
-			{/* Remaining JSX */}
 		</View>
 	)
 }

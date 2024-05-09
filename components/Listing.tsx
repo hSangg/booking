@@ -18,7 +18,7 @@ import {
 	BottomSheetFlatListMethods,
 } from "@gorhom/bottom-sheet"
 import { FlatList } from "react-native"
-import { Homestay } from "@/interface/Homestay"
+import { Room } from "@/interface/Room"
 
 interface Props {
 	listings: any[]
@@ -45,10 +45,8 @@ const Listings = ({ listings: items, category }: Props) => {
 		}, 200)
 	}, [category])
 
-	const renderRow: ListRenderItem<Homestay> = ({
-		item,
-	}) => (
-		<Link href={`/listing/${item.id}`} asChild>
+	const renderRow: ListRenderItem<Room> = ({ item }) => (
+		<Link href={`/listing/${item._id}`} asChild>
 			<TouchableOpacity>
 				<Animated.View
 					style={styles.listing}
@@ -56,7 +54,7 @@ const Listings = ({ listings: items, category }: Props) => {
 					exiting={FadeOutLeft}
 				>
 					<Animated.Image
-						source={{ uri: item.thumbnail_url || "" }} // Provide an empty string as a fallback if thumbnail_url is null
+						source={{ uri: item.thumbnail_urls?.[0] || "" }} // Provide an empty string as a fallback if thumbnail_url is null
 						style={styles.image}
 					/>
 					<TouchableOpacity
@@ -85,9 +83,6 @@ const Listings = ({ listings: items, category }: Props) => {
 						</Text>
 						<View style={{ flexDirection: "row", gap: 4 }}>
 							<Ionicons name='star' size={16} />
-							<Text style={{ fontFamily: "mon-sb" }}>
-								{item.review_scores_rating || 0 / 20}
-							</Text>
 						</View>
 					</View>
 					<Text style={{ fontFamily: "mon" }}>

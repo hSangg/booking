@@ -11,7 +11,12 @@ import ModalHeader from "@/components/ModalHeader"
 import AppLoading from "expo-app-loading"
 import * as SplashScreen from "expo-splash-screen"
 import * as Font from "expo-font"
-import { getValueSecureStore } from "@/store/SecureStore"
+import {
+	getValueSecureStore,
+	saveValueSecureStore,
+} from "@/store/SecureStore"
+import { UserAPI } from "@/api/UserAPI"
+import { User, useUserStore } from "@/store/useUserStore"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -43,7 +48,6 @@ export {
 } from "expo-router"
 
 export const unstable_settings = {
-	// Ensure that reloading on `/modal` keeps a back button present.
 	initialRouteName: "(tabs)",
 }
 
@@ -91,15 +95,6 @@ export default function RootLayout() {
 		return null
 	}
 
-	// const [fontLoaded] = useFonts({
-	// 	mon: require("@/assets/fonts/Montserrat-Regular.ttf"),
-	// 	"mon-sb": require("@/assets/fonts/Montserrat-SemiBold.ttf"),
-	// 	"mon-b": require("@/assets/fonts/Montserrat-Bold.ttf"),
-	// 	"mon-t": require("@/assets/fonts/Montserrat-Thin.ttf"),
-	// })
-
-	// Expo Router uses Error Boundaries to catch errors in the navigation tree.
-
 	return (
 		<ClerkProvider
 			publishableKey={CLERK_PUBLISHABLE_KEY!}
@@ -120,18 +115,46 @@ function RootLayoutNav() {
 	// 		router.push("/(modals)/login")
 	// }, [isLoaded])
 
-	const checkEmailLoged = async () => {
+	const updateUser = useUserStore(
+		(state) => state.updateUser
+	)
+
+	const login = async (email: string, password: string) => {
+		try {
+			const res = await UserAPI.login(email, password)
+			if (res.status === 200) {
+				const { name, email, phone_number, created_at } =
+					res?.data?.data
+				const user: User = {
+					username: name,
+					email,
+					phoneNumber: phone_number,
+					isLogin: true,
+					created_at,
+				}
+				updateUser(user)
+				router.push("/(tabs)/profile")
+			}
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	const checkLogedState = async () => {
 		const email = await getValueSecureStore("email")
-		if (email) {
+		const password = await getValueSecureStore("password")
+		if (email && !password) {
 			console.log("loginWithoutEmailField")
 			router.push("/(modals)/loginWithoutEmailField")
+		} else if (email && password) {
+			login(email, password)
 		} else {
 			router.push("/(modals)/login")
 		}
 	}
 
 	useEffect(() => {
-		checkEmailLoged()
+		checkLogedState()
 	}, [])
 
 	return (

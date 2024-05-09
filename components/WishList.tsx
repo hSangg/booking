@@ -8,14 +8,17 @@ import {
 import { defaultStyles } from "@/constants/Style"
 import { Ionicons } from "@expo/vector-icons"
 import { Link } from "expo-router"
-import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated"
+import Animated, {
+	FadeInRight,
+	FadeOutLeft,
+} from "react-native-reanimated"
 import { useEffect, useRef, useState } from "react"
 import {
 	BottomSheetFlatList,
 	BottomSheetFlatListMethods,
 } from "@gorhom/bottom-sheet"
 import { FlatList } from "react-native"
-import { Homestay } from "@/interface/Homestay"
+import { Homestay } from "@/interface/Room"
 
 interface Props {
 	listings: any[]
@@ -39,7 +42,10 @@ const Listings = ({ listings: items }: Props) => {
 					/>
 
 					<View
-						style={{ flexDirection: "row", justifyContent: "space-between" }}
+						style={{
+							flexDirection: "row",
+							justifyContent: "space-between",
+						}}
 					>
 						<Text
 							style={{
@@ -53,10 +59,16 @@ const Listings = ({ listings: items }: Props) => {
 						</Text>
 					</View>
 					<View>
-						<Text style={{ fontFamily: "mon" }}>{item.room_type}</Text>
+						<Text style={{ fontFamily: "mon" }}>
+							{item.room_type}
+						</Text>
 						<View style={{ flexDirection: "row", gap: 4 }}>
-							<Text style={{ fontFamily: "mon-sb" }}>€ {item.price}</Text>
-							<Text style={{ fontFamily: "mon" }}>night</Text>
+							<Text style={{ fontFamily: "mon-sb" }}>
+								€ {item.price}
+							</Text>
+							<Text style={{ fontFamily: "mon" }}>
+								night
+							</Text>
 						</View>
 					</View>
 
@@ -72,7 +84,9 @@ const Listings = ({ listings: items }: Props) => {
 							paddingVertical: 10,
 						}}
 					>
-						<Text style={{ fontFamily: "mon" }}>{item.summary}</Text>
+						<Text style={{ fontFamily: "mon" }}>
+							{item.summary}
+						</Text>
 					</View>
 				</Animated.View>
 			</TouchableOpacity>
@@ -81,7 +95,13 @@ const Listings = ({ listings: items }: Props) => {
 
 	return (
 		<View style={defaultStyles.container}>
-			<Text style={{ fontFamily: "mon-b", fontSize: 20, textAlign: "center" }}>
+			<Text
+				style={{
+					fontFamily: "mon-b",
+					fontSize: 20,
+					textAlign: "center",
+				}}
+			>
 				WishList
 			</Text>
 			<FlatList
@@ -89,7 +109,9 @@ const Listings = ({ listings: items }: Props) => {
 				data={loading ? [] : items}
 				// ref={listRef}
 				ListHeaderComponent={
-					<Text style={styles.info}>{items.length} homes</Text>
+					<Text style={styles.info}>
+						{items.length} homes
+					</Text>
 				}
 			/>
 		</View>

@@ -1,22 +1,28 @@
+import { RoomAPI } from "@/api/RoomAPI"
+import Colors from "@/constants/Colors"
+import { defaultStyles } from "@/constants/Style"
+import { Room } from "@/interface/Room"
+import { Ionicons } from "@expo/vector-icons"
 import {
 	Link,
 	router,
 	useLocalSearchParams,
 	useNavigation,
 } from "expo-router"
-import React, { useLayoutEffect } from "react"
+import React, {
+	useEffect,
+	useLayoutEffect,
+	useState,
+} from "react"
 import {
-	View,
-	Text,
-	StyleSheet,
-	Image,
 	Dimensions,
-	TouchableOpacity,
 	Share,
+	Image,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
 } from "react-native"
-import listingsData from "@/assets/data/airbnb-listings.json"
-import { Ionicons } from "@expo/vector-icons"
-import Colors from "@/constants/Colors"
 import Animated, {
 	SlideInDown,
 	interpolate,
@@ -24,25 +30,35 @@ import Animated, {
 	useAnimatedStyle,
 	useScrollViewOffset,
 } from "react-native-reanimated"
-import { defaultStyles } from "@/constants/Style"
-import { Homestay } from "@/interface/Homestay"
-
+import Carousel from "react-native-reanimated-carousel"
+import { UtilFunction } from "../utils/utilFunction"
 const { width } = Dimensions.get("window")
 const IMG_HEIGHT = 340
 
 const DetailsPage = () => {
 	const { id } = useLocalSearchParams()
-	const listing = (listingsData as Homestay[]).find(
-		(item) => item.id === id
-	)
+	const [homeStay, setHomeStay] = useState<Room>()
 	const navigation = useNavigation()
 	const scrollRef = useAnimatedRef<Animated.ScrollView>()
 
-	const shareListing = async () => {
+	const getRoomById = async (id: string) => {
+		try {
+			const res = await RoomAPI.getRoomById(id)
+			setHomeStay(res?.data.data.room)
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	useEffect(() => {
+		getRoomById(id.toString())
+	}, [])
+
+	const shareRoom = async () => {
 		try {
 			await Share.share({
-				title: listing?.name || "",
-				url: listing?.listing_url || "",
+				title: homeStay?.name || "",
+				url: homeStay?.thumbnail_urls?.[0] || "",
 			})
 		} catch (err) {
 			console.log(err)
@@ -63,7 +79,7 @@ const DetailsPage = () => {
 				<View style={styles.bar}>
 					<TouchableOpacity
 						style={styles.roundButton}
-						onPress={shareListing}
+						onPress={shareRoom}
 					>
 						<Ionicons
 							name='share-outline'
@@ -135,21 +151,39 @@ const DetailsPage = () => {
 				ref={scrollRef}
 				scrollEventThrottle={16}
 			>
-				<Animated.Image
-					source={{ uri: listing?.thumbnail_url || "" }}
-					style={[styles.image, imageAnimatedStyle]}
-					resizeMode='cover'
+				<Carousel
+					loop
+					width={width}
+					height={340}
+					autoPlay={true}
+					data={homeStay?.thumbnail_urls as any}
+					scrollAnimationDuration={1000}
+					renderItem={({ index }) => {
+						return (
+							<View style={{ flex: 1, height: 500 }}>
+								<Image
+									source={{
+										uri:
+											homeStay?.thumbnail_urls?.[index] ||
+											"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3N_sAjazDv75OEWZMYE-6e2xBhsXwoNhthjB0zbCKPA&s",
+									}}
+									style={[styles.image]}
+									resizeMode='cover'
+								/>
+							</View>
+						)
+					}}
 				/>
 
 				<View style={styles.infoContainer}>
-					<Text style={styles.name}>{listing?.name}</Text>
+					<Text style={styles.name}>{homeStay?.name}</Text>
 					<Text style={styles.location}>
-						{listing?.room_type} in{" "}
-						{listing?.smart_location}
+						{homeStay?.room_type} in{" "}
+						{homeStay?.smart_location}
 					</Text>
 					<Text style={styles.rooms}>
-						{listing?.bedrooms} bedrooms · {listing?.beds}{" "}
-						bed · {listing?.bathrooms} bathrooms
+						{homeStay?.bedRooms} bedrooms · {homeStay?.beds}{" "}
+						bed · {homeStay?.bathRooms} bathrooms
 					</Text>
 					<View
 						style={{
@@ -159,16 +193,13 @@ const DetailsPage = () => {
 						}}
 					>
 						<Ionicons name='star' size={16} />
-						<Text style={styles.ratings}>
-							{listing?.review_scores_rating || 0 / 20} ·{" "}
-						</Text>
 					</View>
 					<View style={styles.divider} />
 
 					<View style={styles.hostView}>
 						<Link
-							href={`/host/${listing?.host_id}`}
-							// source={{ uri: listing.host_picture_url }}
+							href={`/host/${homeStay?.host?._id}`}
+							// source={{ uri: room.host_picture_url }}
 							style={styles.host}
 						/>
 
@@ -176,15 +207,21 @@ const DetailsPage = () => {
 							<Text
 								style={{ fontSize: 14, fontFamily: "mon" }}
 							>
-								Hosted by {"JOIN NGUYEN"}
+								Hosted by {homeStay?.host?.name}
 							</Text>
 							<Text
+								onPress={() =>
+									console.log(homeStay?.host?.created_at)
+								}
 								style={{
 									fontSize: 14,
 									fontFamily: "mon-sb",
 								}}
 							>
-								Host since {"12/12/2003"}
+								Host since{" "}
+								{UtilFunction.formatToHostSince(
+									homeStay?.host?.created_at as Date
+								)}
 							</Text>
 						</View>
 					</View>
@@ -203,7 +240,7 @@ const DetailsPage = () => {
 								Summary
 							</Text>
 							<Text style={styles.description}>
-								{listing?.summary}
+								{homeStay?.summary}
 							</Text>
 						</View>
 					</View>
@@ -220,7 +257,7 @@ const DetailsPage = () => {
 								Transit
 							</Text>
 							<Text style={styles.description}>
-								{listing?.transit}
+								{homeStay?.transit}
 							</Text>
 						</View>
 					</View>
@@ -235,9 +272,6 @@ const DetailsPage = () => {
 								}}
 							>
 								Amenities
-							</Text>
-							<Text style={styles.description}>
-								{listing?.amenities?.join(" • ")}
 							</Text>
 						</View>
 					</View>
@@ -257,14 +291,14 @@ const DetailsPage = () => {
 				>
 					<TouchableOpacity style={styles.footerText}>
 						<Text style={styles.footerPrice}>
-							€{listing?.price}
+							€{homeStay?.price}
 						</Text>
 						<Text>night</Text>
 					</TouchableOpacity>
 
 					<TouchableOpacity
 						onPress={() =>
-							router.push(`/reservation/${listing?.id}`)
+							router.push(`/reservation/${homeStay?._id}`)
 						}
 						style={[
 							defaultStyles.btn,
