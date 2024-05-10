@@ -21,4 +21,5 @@ export interface Room {
 	weekly_price?: number
 	review?: string
 	created_at?: Date
+	bookedDate: string[]
 }

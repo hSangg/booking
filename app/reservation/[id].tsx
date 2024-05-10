@@ -13,6 +13,7 @@ import {
 	ScrollView,
 	StyleSheet,
 	Text,
+	ToastAndroid,
 	View,
 } from "react-native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
@@ -24,48 +25,25 @@ import Animated, {
 // @ts-ignore
 
 import sampleRoomReservation from "@/assets/data/reservation.datasample.json"
-import { Room } from "@/interface/Room"
 
-import { UtilFunction } from "../utils/utilFunction"
-import { SafeAreaView } from "react-native-safe-area-context"
 import { Calendar } from "react-native-calendars"
+import { SafeAreaView } from "react-native-safe-area-context"
+import { UtilFunction } from "../utils/utilFunction"
+import { Room } from "@/interface/Room"
+import { RoomAPI } from "@/api/RoomAPI"
 
 const AnimatedTouchableOpacity =
 	Animated.createAnimatedComponent(TouchableOpacity)
 
-const guestsGropus = [
-	{
-		name: "Adults",
-		text: "Ages 13 or above",
-		count: 0,
-	},
-	{
-		name: "Children",
-		text: "Ages 2-12",
-		count: 0,
-	},
-	{
-		name: "Infants",
-		text: "Under 2",
-		count: 0,
-	},
-	{
-		name: "Pets",
-		text: "Pets allowed",
-		count: 0,
-	},
-]
-
-const bookedDate = ["2024-05-20", "2024-05-16"]
-
 const DetailPage = () => {
 	const { id } = useLocalSearchParams()
+
 	const [dateRange, setDateRange] = useState({
 		startDate: "",
 		endDate: "",
 	})
 	const [markedDates, setMarkedDates] = useState({})
-
+	const [bookedDate, setBookedDate] = useState([])
 	const [dataPrice, setDataPrice] = useState({
 		numberOfDay: UtilFunction.caculateDate(
 			dateRange.startDate,
@@ -75,31 +53,48 @@ const DetailPage = () => {
 	})
 
 	// get data of room by id, render to UI
+	const [homeStay, setHomeStay] = useState<Room>()
 
-	// I load data sample to UI
-	const sampleRoom: any = sampleRoomReservation
-	const price = sampleRoom.price
+	const getRoomById = async (id: string) => {
+		try {
+			const res = await RoomAPI.getRoomById(id)
+			setHomeStay(res?.data.data.room)
+			setBookedDate(res?.data?.room?.bookedDate || [])
+		} catch (error) {
+			console.log(error)
+		}
+	}
 
-	//
+	useEffect(() => {
+		getRoomById(id.toString())
+	}, [])
 
 	const [openCard, setOpenCard] = useState(0)
 	const router = useRouter()
 
 	useEffect(() => {
-		setDataPrice(() => {
-			let numberOfDay = UtilFunction.caculateDate(
+		if (
+			!isDateXAfterDateY(
 				dateRange.startDate,
 				dateRange.endDate
 			)
+		) {
+			setDataPrice(() => {
+				let numberOfDay = UtilFunction.caculateDate(
+					dateRange.startDate,
+					dateRange.endDate
+				)
 
-			console.log(numberOfDay)
-			return {
-				numberOfDay: numberOfDay,
-				total: Number.parseFloat(
-					(numberOfDay * (sampleRoom.price || 0)).toFixed(2)
-				),
-			}
-		})
+				return {
+					numberOfDay: numberOfDay,
+					total: Number.parseFloat(
+						(numberOfDay * (homeStay?.price || 0)).toFixed(
+							2
+						)
+					),
+				}
+			})
+		}
 	}, [dateRange.startDate, dateRange.endDate])
 
 	const onClearAll = () => {
@@ -107,51 +102,44 @@ const DetailPage = () => {
 	}
 
 	const handleDayPress = (date: any) => {
-		console.log("date: >>>>", date)
 		const { startDate, endDate } = dateRange
-		console.log("start: ", startDate, " end: ", endDate)
-		if (isDateXAfterDateY(startDate, endDate)) {
-			console.log("1")
-		}
-		if (!startDate) {
-			// Set selected date as start date
+
+		if (startDate === "") {
 			setDateRange({
 				startDate: date.dateString,
 				endDate: "",
 			})
-			setMarkedDates({
-				[date.dateString]: {
-					startingDay: true,
-					color: "#FF385C",
-				},
-			})
-		} else if (startDate && !endDate) {
-			// Set selected date as end date
+			console.log("0")
+		} else if (startDate && endDate === "") {
 			if (date.dateString !== startDate) {
-				setDateRange({
-					startDate,
-					endDate: date.dateString,
-				})
-				setMarkedDates({
-					...markedDates,
-					[date.dateString]: {
-						endingDay: true,
-						color: "#FF385C",
-					},
-				})
+				if (
+					checkBookedDateContainDateRange(
+						bookedDate,
+						startDate,
+						date.dateString
+					)
+				) {
+					ToastAndroid.show(
+						"The date range include booked date",
+						ToastAndroid.SHORT
+					)
+					setDateRange({
+						startDate: "",
+						endDate: "",
+					})
+				} else
+					setDateRange({
+						startDate,
+						endDate: date.dateString,
+					})
 			}
+			console.log("1")
 		} else {
-			// Clear the date range and set the selected date as start date
 			setDateRange({
 				startDate: date.dateString,
 				endDate: "",
 			})
-			setMarkedDates({
-				[date.dateString]: {
-					startingDay: true,
-					color: "#FF385C",
-				},
-			})
+			console.log("2")
 		}
 	}
 
@@ -164,7 +152,7 @@ const DetailPage = () => {
 							style={{ ...styles.card, padding: 20 }}
 						>
 							<Text style={styles.previewText}>
-								Having amazing trip in {sampleRoom.name} 🔥
+								Having amazing trip in {homeStay?.name} 🔥
 							</Text>
 						</SafeAreaView>
 					),
@@ -191,7 +179,9 @@ const DetailPage = () => {
 					<View style={{ ...styles.card, padding: 20 }}>
 						<Image
 							source={{
-								uri: sampleRoom.thumbnail_url || "",
+								uri:
+									homeStay?.thumbnail_urls?.[0] ||
+									"https://placehold.jp/500x300.png",
 							}}
 							style={[styles.image]}
 							resizeMode='cover'
@@ -218,10 +208,13 @@ const DetailPage = () => {
 								maxDate='2025-01-01'
 								hideExtraDays={true}
 								markingType='period'
-								markedDates={generateMarkedDates(
-									dateRange.startDate,
-									dateRange.endDate
-								)}
+								markedDates={{
+									...generateMarkedDates(
+										dateRange.startDate,
+										dateRange.endDate
+									),
+									...generateDisableDate(bookedDate),
+								}}
 							/>
 						</Animated.View>
 					)}
@@ -279,11 +272,39 @@ const DetailPage = () => {
 	)
 }
 
+function checkBookedDateContainDateRange(
+	bookedDate: string[],
+	startDateString: string,
+	endDateString: string
+) {
+	let startDate = new Date(startDateString)
+	let endDate = new Date(endDateString)
+
+	for (let i = 0; i < bookedDate.length; i++) {
+		let date = new Date(bookedDate[i])
+		if (date >= startDate && date <= endDate) {
+			return true // At least one booked date falls within the range
+		}
+	}
+	return false // No booked date falls within the range
+}
+
 function isDateXAfterDateY(dateX: string, dateY: string) {
 	const x = new Date(dateX)
 	const y = new Date(dateY)
 
 	return x > y
+}
+
+function generateDisableDate(dateList: string[]) {
+	let result: { [k: string]: any } = {}
+	dateList.forEach((date) => {
+		result[date] = {
+			disabled: true,
+			disableTouchEvent: true,
+		}
+	})
+	return result
 }
 
 function generateMarkedDates(
@@ -327,14 +348,9 @@ function generateMarkedDates(
 		color: "#FF385C",
 		dotColor: "transparent",
 	}
-	console.log("markedDates: =>>>>", markedDates)
 
 	return {
 		...markedDates,
-		"2024-05-20": {
-			disabled: true,
-			disableTouchEvent: true,
-		},
 	}
 }
 
