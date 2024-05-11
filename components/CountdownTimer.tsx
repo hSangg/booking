@@ -36,21 +36,25 @@ const CountdownTimer = () => {
 	const seconds = time % 60
 
 	return (
-		<View>
+		<View
+			style={{
+				flexDirection: "row",
+				justifyContent: "center",
+				gap: 5,
+			}}
+		>
 			<Text
 				style={{
 					fontSize: 24,
-					textAlign: "center",
-					marginTop: 20,
+					fontFamily: "mon",
 				}}
 			>
-				Countdown Timer
+				Your OTP will be expired in
 			</Text>
 			<Text
 				style={{
-					fontSize: 48,
-					textAlign: "center",
-					marginTop: 10,
+					fontSize: 24,
+					fontFamily: "mon",
 				}}
 			>
 				{`${minutes}:${seconds < 10 ? "0" : ""}${seconds}`}
