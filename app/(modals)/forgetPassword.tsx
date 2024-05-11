@@ -10,6 +10,7 @@ import { defaultStyles } from "@/constants/Style"
 import { TouchableOpacity } from "@gorhom/bottom-sheet"
 import { useForgetPasswordStore } from "@/store/useForgetPasswordStore"
 import { UserAPI } from "@/api/UserAPI"
+import CountdownTimer from "@/components/CountdownTimer"
 
 const forgetPassword = () => {
 	const [OTP, setOtp] = useState<string>("")
@@ -57,7 +58,7 @@ const forgetPassword = () => {
 					e-mail
 				</Text>
 				<TextInput
-					id='identification_code'
+					id='id_code'
 					value={OTP}
 					onChangeText={setOtp}
 					onSubmitEditing={handleSubmit}
@@ -74,7 +75,7 @@ const forgetPassword = () => {
 						},
 					]}
 				/>
-
+				<CountdownTimer />
 				<TouchableOpacity
 					onPress={handleSubmit}
 					style={{ ...defaultStyles.btn, marginTop: 10 }}
