@@ -120,14 +120,21 @@ const Signup = () => {
 				data.phone_number
 			)
 			if (res.status === 201) {
-				const { email, name, phone_number, created_at } =
-					res?.data?.data
+				const {
+					_id,
+					email,
+					name,
+					phone_number,
+					created_at,
+				} = res?.data?.data
 				const user = {
+					_id,
 					username: name,
 					email,
 					phoneNumber: phone_number,
 					isLogin: true,
 					created_at,
+					token: res.data.token,
 				}
 				ToastAndroid.showWithGravity(
 					"Sign up successfully",
@@ -197,7 +204,7 @@ const Signup = () => {
 
 			<TextInput
 				autoCapitalize='none'
-				placeholder='Password'
+				placeholder='Password is 6 numeric'
 				keyboardType='numeric'
 				maxLength={6}
 				style={[

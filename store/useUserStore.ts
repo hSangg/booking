@@ -1,10 +1,12 @@
 import { create } from "zustand"
 export interface User {
+	_id: string
 	username: string
 	phoneNumber: string
 	email: string
 	isLogin: boolean
 	created_at: Date
+	token: string
 }
 
 type State = {
@@ -19,11 +21,13 @@ type Action = {
 export const useUserStore = create<State & Action>(
 	(set) => ({
 		user: {
+			_id: "",
 			username: "",
 			email: "",
 			phoneNumber: "",
 			isLogin: false,
 			created_at: new Date(),
+			token: "",
 		},
 		updateUser: (user: User) => set(() => ({ user: user })),
 	})

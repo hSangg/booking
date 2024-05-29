@@ -1,4 +1,4 @@
-import { Host } from "./Host"
+import { User } from "./Host"
 
 export interface Room {
 	_id: string
@@ -7,7 +7,7 @@ export interface Room {
 	transit?: string
 	house_rules?: string
 	thumbnail_urls?: string[]
-	host?: Host
+	host?: User
 	street?: string
 	smart_location?: string
 	country?: string
