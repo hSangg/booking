@@ -24,13 +24,12 @@ import Animated, {
 } from "react-native-reanimated"
 // @ts-ignore
 
-import sampleRoomReservation from "@/assets/data/reservation.datasample.json"
-
+import { RoomAPI } from "@/api/RoomAPI"
+import { Room } from "@/interface/Room"
+import { useUserStore } from "@/store/useUserStore"
 import { Calendar } from "react-native-calendars"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { UtilFunction } from "../utils/utilFunction"
-import { Room } from "@/interface/Room"
-import { RoomAPI } from "@/api/RoomAPI"
 
 const AnimatedTouchableOpacity =
 	Animated.createAnimatedComponent(TouchableOpacity)
@@ -59,7 +58,7 @@ const DetailPage = () => {
 		try {
 			const res = await RoomAPI.getRoomById(id)
 			setHomeStay(res?.data.data.room)
-			setBookedDate(res?.data?.room?.bookedDate || [])
+			setBookedDate(["2024-05-20"] as any)
 		} catch (error) {
 			console.log(error)
 		}
@@ -143,6 +142,34 @@ const DetailPage = () => {
 		}
 	}
 
+	const { user } = useUserStore()
+
+	const handleBooking = async () => {
+		const user_id = user._id
+		const token = user.token
+		const room_id = id as string
+		const start_date = dateRange.startDate
+		const end_date = dateRange.endDate
+
+		console.log("user_id", user_id)
+		console.log("token", token)
+		console.log("room_id", room_id)
+		console.log("start_date", start_date)
+		console.log("end_date", end_date)
+
+		const res = await RoomAPI.reservation(
+			user_id,
+			room_id,
+			start_date,
+			end_date,
+			token
+		)
+
+		const message = "Chúc mừng bạn đã đặt phòng thành công"
+
+		if (res) router.push(`(information)/${message}` as any)
+	}
+
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<Stack.Screen
@@ -204,7 +231,7 @@ const DetailPage = () => {
 									margin: 40,
 								}}
 								onDayPress={handleDayPress}
-								minDate='2024-01-01'
+								minDate={formatDate()}
 								maxDate='2025-01-01'
 								hideExtraDays={true}
 								markingType='period'
@@ -256,7 +283,7 @@ const DetailPage = () => {
 							defaultStyles.btn,
 							{ paddingRight: 20, paddingLeft: 50 },
 						]}
-						onPress={() => router.back()}
+						onPress={() => handleBooking()}
 					>
 						<Ionicons
 							name='search-outline'
@@ -294,6 +321,24 @@ function isDateXAfterDateY(dateX: string, dateY: string) {
 	const y = new Date(dateY)
 
 	return x > y
+}
+
+function formatDate(): string {
+	const today: Date = new Date()
+	const year: number = today.getFullYear()
+	const month: number = today.getMonth() + 1 // January is 0
+	const day: number = today.getDate()
+
+	// Padding single digits with leading zeros
+	const formattedMonth: string =
+		month < 10 ? `0${month}` : `${month}`
+	const formattedDay: string =
+		day < 10 ? `0${day}` : `${day}`
+
+	// Combining the components into the desired format
+	const formattedDate: string = `${year}-${formattedMonth}-${formattedDay}`
+
+	return formattedDate
 }
 
 function generateDisableDate(dateList: string[]) {

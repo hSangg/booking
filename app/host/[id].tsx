@@ -1,6 +1,15 @@
 import { Ionicons } from "@expo/vector-icons"
-import { Link, useNavigation } from "expo-router"
-import React, { useLayoutEffect } from "react"
+import {
+	Link,
+	Stack,
+	useLocalSearchParams,
+	useNavigation,
+} from "expo-router"
+import React, {
+	useEffect,
+	useLayoutEffect,
+	useState,
+} from "react"
 import Colors from "@/constants/Colors"
 import {
 	StyleSheet,
@@ -20,32 +29,29 @@ import Animated, {
 	FadeIn,
 	FadeOut,
 } from "react-native-reanimated"
+import { axiosClient } from "@/api/AxiosClient"
+import { HostAPI } from "@/api/HostAPI"
+import { Host } from "@/interface/Host"
+import { Room } from "@/interface/Room"
+
+// id 663743116fa6671619d801f7
 
 const DetailPage = () => {
 	const navigation = useNavigation()
-
-	useLayoutEffect(() => {
-		navigation.setOptions({
-			headerTitle: "JOHN NGUYEN",
-			headerTransparent: false,
-
-			headerLeft: () => (
-				<TouchableOpacity
-					style={styles.roundButton}
-					onPress={() => navigation.goBack()}
-				>
-					<Ionicons
-						name='chevron-back'
-						size={24}
-						color={"#000"}
-					/>
-				</TouchableOpacity>
-			),
-		})
+	const { id } = useLocalSearchParams()
+	const [host, setHost] = useState<Host>()
+	useEffect(() => {
+		getHostInfor(id as string)
 	}, [])
+	const getHostInfor = async (id: string) => {
+		console.log(id)
+		const res = await HostAPI.getHostInformation(id)
+		console.log("res-----", res?.data.data)
+		setHost(res?.data?.data as any)
+	}
 
-	const renderRow: ListRenderItem<any> = ({ item }) => (
-		<Link href={`/listing/${item.id}`} asChild>
+	const renderRow: ListRenderItem<Room> = ({ item }) => (
+		<Link href={`/listing/${item._id}`} asChild>
 			<TouchableOpacity>
 				<Animated.View
 					style={styles.listingItem}
@@ -53,7 +59,7 @@ const DetailPage = () => {
 					exiting={FadeOut}
 				>
 					<Animated.Image
-						source={{ uri: item.thumbnail_url || "" }} // Provide an empty string as a fallback if thumbnail_url is null
+						source={{ uri: item.thumbnail_urls?.[0] || "" }} // Provide an empty string as a fallback if thumbnail_url is null
 						style={styles.imageItem}
 					/>
 					<TouchableOpacity
@@ -82,9 +88,6 @@ const DetailPage = () => {
 						</Text>
 						<View style={{ flexDirection: "row", gap: 4 }}>
 							<Ionicons name='star' size={16} />
-							<Text style={{ fontFamily: "mon-sb" }}>
-								{item.review_scores_rating || 0 / 20}
-							</Text>
 						</View>
 					</View>
 
@@ -115,6 +118,23 @@ const DetailPage = () => {
 
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
+			<Stack.Screen
+				options={{
+					headerTitle: host?.user.name,
+					headerLeft: () => (
+						<TouchableOpacity
+							style={styles.roundButton}
+							onPress={() => navigation.goBack()}
+						>
+							<Ionicons
+								name='chevron-back'
+								size={24}
+								color={"#000"}
+							/>
+						</TouchableOpacity>
+					),
+				}}
+			></Stack.Screen>
 			<SafeAreaView style={{ flex: 1 }}>
 				<View
 					style={{
@@ -125,7 +145,7 @@ const DetailPage = () => {
 				>
 					<Image
 						source={{
-							uri: sampleData.host_thumbnail_url || "",
+							uri: "https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/398492825_2334225390300563_2757619712327292917_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeHmYr9ejngbLlwuCZGfCHKAr_6mPp2vEOev_qY-na8Q50xDO-KX72UttaZUYEbB0Dx445OAGU5MUiGtLdSOlrLl&_nc_ohc=WXviCk5_sRYQ7kNvgEA2aQn&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYAj_peJeFSCTDqA5GbahdBHH7RxJljR5lhDfJ1jz_FBwg&oe=66546604",
 						}}
 						style={[styles.image]}
 						resizeMode='cover'
@@ -145,7 +165,7 @@ const DetailPage = () => {
 									fontSize: 18,
 								}}
 							>
-								{sampleData.host_name}
+								{host?.user.name}
 							</Text>
 						</View>
 
@@ -160,7 +180,7 @@ const DetailPage = () => {
 								name='navigate-circle-outline'
 								size={18}
 							/>
-							<Text>At {sampleData.host_location}</Text>
+							<Text>{host?.user.phone_number}</Text>
 						</View>
 
 						<View
@@ -171,14 +191,13 @@ const DetailPage = () => {
 							}}
 						>
 							<Ionicons name='happy-outline' size={18} />
-							<Text>Since {sampleData.host_since} </Text>
 						</View>
 					</View>
 				</View>
 
 				<FlatList
 					renderItem={renderRow}
-					data={items}
+					data={host?.hostedList}
 					// ref={listRef}
 					ListHeaderComponent={
 						<Text style={styles.info}>
@@ -229,15 +248,6 @@ const styles = StyleSheet.create({
 	},
 })
 
-const sampleData = {
-	host_id: "8319062",
-	host_name: "Nigel",
-	host_since: "2013-08-22",
-	host_location: "Berlin, Berlin, Germany",
-	host_thumbnail_url:
-		"https://a0.muscache.com/im/pictures/user/c7e74325-a8e2-4917-874e-1b954af5c0b5.jpg?im_w=240",
-	host_listings_count: 4,
-}
 const items = [
 	{
 		id: "456234234",

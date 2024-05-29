@@ -108,15 +108,23 @@ const Login = () => {
 					data.email,
 					data.password
 				)
-				if (res.status === 200) {
-					const { name, email, phone_number, created_at } =
-						res?.data?.data
+
+				if (res?.status === 200) {
+					const {
+						_id,
+						name,
+						email,
+						phone_number,
+						// created_at,
+					} = res?.data?.data
 					const user: User = {
+						_id,
 						username: name,
 						email,
 						phoneNumber: phone_number,
 						isLogin: true,
-						created_at,
+						created_at: new Date(),
+						token: res.data.token,
 					}
 					updateUser(user)
 					saveValueSecureStore("email", user.email)

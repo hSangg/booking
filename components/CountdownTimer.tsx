@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native"
 import { router } from "expo-router"
 
 const CountdownTimer = () => {
-	const [time, setTime] = useState(5) // 2 minutes in seconds
+	const [time, setTime] = useState(120) // 2 minutes in seconds
 	const [timerEnded, setTimerEnded] = useState(false)
 	const navigation = useNavigation()
 	const timerRef = useRef(null) as any

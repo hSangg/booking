@@ -122,10 +122,17 @@ function RootLayoutNav() {
 	const login = async (email: string, password: string) => {
 		try {
 			const res = await UserAPI.login(email, password)
-			if (res.status === 200) {
-				const { name, email, phone_number, created_at } =
-					res?.data?.data
+			if (res?.status === 200) {
+				const {
+					_id,
+					name,
+					email,
+					phone_number,
+					created_at,
+				} = res?.data?.data
 				const user: User = {
+					_id,
+					token: res.data.token,
 					username: name,
 					email,
 					phoneNumber: phone_number,

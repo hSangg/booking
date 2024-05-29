@@ -1,6 +1,10 @@
 import { defaultStyles } from "@/constants/Style"
 import { Ionicons } from "@expo/vector-icons"
-import { Stack, router } from "expo-router"
+import {
+	Stack,
+	router,
+	useLocalSearchParams,
+} from "expo-router"
 import { default as React } from "react"
 import { Text, View } from "react-native"
 import {
@@ -9,6 +13,8 @@ import {
 } from "react-native-gesture-handler"
 
 const Congatulation = () => {
+	const { congatulation } = useLocalSearchParams()
+
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<View
@@ -37,8 +43,7 @@ const Congatulation = () => {
 						marginHorizontal: 20,
 					}}
 				>
-					A new password have been sent to your email !!!
-					Please check 💖
+					{congatulation}
 				</Text>
 				<TouchableOpacity
 					onPress={() => {

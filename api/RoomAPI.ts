@@ -38,4 +38,30 @@ export const RoomAPI = {
 			console.log(error)
 		}
 	},
+	reservation: async (
+		user_id: string,
+		room_id: string,
+		start_date: string,
+		end_date: string,
+		token: string
+	) => {
+		const result = await axiosClient.post(
+			"/booking/bookRoom",
+			{
+				user_id,
+				room_id,
+				start_date,
+				end_date,
+			},
+			{
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			}
+		)
+
+		if (result.status === 201) return true
+		else return false
+	},
 }
