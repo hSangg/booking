@@ -54,7 +54,11 @@ const Listings = ({ listings: items, category }: Props) => {
 					exiting={FadeOutLeft}
 				>
 					<Animated.Image
-						source={{ uri: item.thumbnail_urls?.[0] || "" }} // Provide an empty string as a fallback if thumbnail_url is null
+						source={{
+							uri:
+								item.thumbnail_urls?.[0] ||
+								"https://random.imagecdn.app/500/500",
+						}} // Provide an empty string as a fallback if thumbnail_url is null
 						style={styles.image}
 					/>
 					<TouchableOpacity

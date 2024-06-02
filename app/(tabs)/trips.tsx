@@ -1,11 +1,31 @@
-import { View, Text, ListRenderItem } from "react-native"
-import React from "react"
-import { GestureHandlerRootView } from "react-native-gesture-handler"
-import { Stack } from "expo-router"
+import { RoomAPI } from "@/api/RoomAPI"
 import CommingTrip from "@/components/CommingTrip"
-import trips from "@/assets/data/reservations.json"
+import { Booking } from "@/interface/Booking"
+import { getValueSecureStore } from "@/store/SecureStore"
+import { Stack } from "expo-router"
+import React, { useEffect, useState } from "react"
+import { View } from "react-native"
+import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { SafeAreaView } from "react-native-safe-area-context"
 const Trips = () => {
+	const [trips, setTrips] = useState<Booking | any>([])
+	useEffect(() => {
+		getTripsByUserId()
+	}, [])
+
+	const getTripsByUserId = async () => {
+		const _id: any = await getValueSecureStore("id")
+		const token: any = await getValueSecureStore("token")
+
+		console.log("id: ", _id)
+		console.log("token: ", token)
+		const res = await RoomAPI.getReservationRoomByUserId(
+			_id,
+			token
+		)
+		setTrips(sortBookingsByStartDate(res))
+		console.log(res)
+	}
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<SafeAreaView style={{ flex: 1 }}>
@@ -22,3 +42,13 @@ const Trips = () => {
 }
 
 export default Trips
+
+function sortBookingsByStartDate(
+	bookings: Booking[]
+): Booking[] {
+	return bookings.sort(
+		(a, b) =>
+			new Date(a.start_date).getTime() -
+			new Date(b.start_date).getTime()
+	)
+}

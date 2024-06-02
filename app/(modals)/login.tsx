@@ -115,7 +115,7 @@ const Login = () => {
 						name,
 						email,
 						phone_number,
-						// created_at,
+						created_at,
 					} = res?.data?.data
 					const user: User = {
 						_id,
@@ -123,12 +123,17 @@ const Login = () => {
 						email,
 						phoneNumber: phone_number,
 						isLogin: true,
-						created_at: new Date(),
+						created_at,
 						token: res.data.token,
 					}
 					updateUser(user)
-					saveValueSecureStore("email", user.email)
-					saveValueSecureStore("password", data.password)
+					await saveValueSecureStore("email", user.email)
+					await saveValueSecureStore("id", user._id)
+					await saveValueSecureStore("token", user.token)
+					await saveValueSecureStore(
+						"password",
+						data.password
+					)
 					router.push("/(tabs)/profile")
 				} else {
 					setPasswordError("Incorrect email or password")

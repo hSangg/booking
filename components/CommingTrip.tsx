@@ -21,7 +21,7 @@ const CommingTrip = ({ trips }: Props) => {
 		<Animated.View style={styles.listing}>
 			<Animated.Image
 				style={styles.image}
-				src={item.room.thumbnail_url}
+				src={item.room.thumbnail_urls[0]}
 			/>
 			<Animated.View
 				style={{
@@ -61,7 +61,8 @@ const CommingTrip = ({ trips }: Props) => {
 						paddingTop: 10,
 					}}
 				>
-					{item.start_date} - {item.end_date}
+					{formatDate(item.start_date)} -{" "}
+					{formatDate(item.end_date)}
 				</Animated.Text>
 
 				<Animated.View
@@ -168,3 +169,14 @@ const styles = StyleSheet.create({
 })
 
 export default CommingTrip
+
+function formatDate(isoString: string): string {
+	const date = new Date(isoString)
+	const day = String(date.getUTCDate()).padStart(2, "0")
+	const month = String(date.getUTCMonth() + 1).padStart(
+		2,
+		"0"
+	) // Months are zero-based
+	const year = date.getUTCFullYear()
+	return `${day}/${month}/${year}`
+}
