@@ -31,7 +31,6 @@ export const RoomAPI = {
 			).trim()
 			const res = await axiosClient.get(queryString)
 			if (res.status === 200) {
-				console.log("res=>>>>>>", res)
 				return res
 			}
 		} catch (error) {

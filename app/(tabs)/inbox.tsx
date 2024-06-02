@@ -1,5 +1,17 @@
 import { defaultStyles } from "@/constants/Style"
+import {
+	collection,
+	doc,
+	getDoc,
+	getDocs,
+	or,
+	query,
+	setDoc,
+	where,
+} from "firebase/firestore"
 import { Ionicons } from "@expo/vector-icons"
+import { db } from "@/firebase"
+
 import { Link } from "expo-router"
 import {
 	FlatList,
@@ -8,15 +20,24 @@ import {
 	Text,
 	TouchableOpacity,
 	View,
+	Button,
 } from "react-native"
 import Animated, {
 	FadeInRight,
 	FadeOutLeft,
 } from "react-native-reanimated"
+import { useUserStore } from "@/store/useUserStore"
+import { useState } from "react"
+
+const removeDuplicates = (array: any) => {
+	return [...new Set(array)]
+}
 
 const Inbox = () => {
+	const { user } = useUserStore()
+	const [roomIDList, setRoomIDList] = useState<any>([])
 	const renderRow: ListRenderItem<any> = ({ item }) => (
-		<Link href={`/message/${item.room}`} asChild>
+		<Link href={`/message/${item}`} asChild>
 			<TouchableOpacity>
 				<Animated.View
 					style={styles.listing}
@@ -58,15 +79,41 @@ const Inbox = () => {
 			</TouchableOpacity>
 		</Link>
 	)
+
+	const getData = async () => {
+		const userID = user._id
+
+		try {
+			const q = query(
+				collection(db, "roomChats"),
+				or(
+					where("first", "==", userID),
+					where("second", "==", userID)
+				)
+			)
+			const list: any = []
+			const querySnapshot = await getDocs(q)
+			querySnapshot.docs.forEach((doc) => {
+				list.push(doc.id)
+			})
+
+			const uniqueArray = removeDuplicates(list)
+			setRoomIDList(uniqueArray)
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
 	return (
 		<View style={defaultStyles.container}>
+			<Button title='Test' onPress={getData}></Button>
 			<FlatList
 				renderItem={renderRow}
-				data={items}
+				data={roomIDList}
 				// ref={listRef}
 				ListHeaderComponent={
 					<Text style={styles.info}>
-						{items.length} homes
+						{roomIDList.length} homes
 					</Text>
 				}
 			/>
@@ -98,21 +145,3 @@ const styles = StyleSheet.create({
 		marginTop: 4,
 	},
 })
-
-const items = [
-	{
-		destinationUser: "Alex",
-		lastingMessage: "Hello welcome to VN 😍",
-		room: "a",
-	},
-	{
-		destinationUser: "John Nguyen",
-		lastingMessage: "The price for one night is $20 🔥",
-		room: "b",
-	},
-	{
-		destinationUser: "John VN",
-		lastingMessage: "Wish you have amazing trips here",
-		room: "c",
-	},
-]
