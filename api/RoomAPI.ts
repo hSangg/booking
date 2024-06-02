@@ -63,4 +63,36 @@ export const RoomAPI = {
 		if (result.status === 201) return true
 		else return false
 	},
+	getReservationRoomByUserId: async (
+		user_id: string,
+		token: string
+	) => {
+		try {
+			const url = `/booking/getTrip?user_id=${user_id}`
+			const response = await axiosClient.get(url, {
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			if (response.status === 200) {
+				return response.data.data
+			}
+		} catch (error) {
+			console.log(
+				"error at get reservation by user_id ",
+				error
+			)
+		}
+	},
 }
+
+/**
+ * GET /booking/getTrip (user_id) --> get trips of user by id
+ *
+ *
+ *
+ *
+ *
+ */

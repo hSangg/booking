@@ -25,7 +25,6 @@ export const UserAPI = {
 			return response
 		} catch (error) {}
 	},
-
 	register: async (
 		email: string,
 		name: string,
