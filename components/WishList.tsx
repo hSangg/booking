@@ -1,35 +1,29 @@
-import {
-	View,
-	Text,
-	StyleSheet,
-	ListRenderItem,
-	TouchableOpacity,
-} from "react-native"
 import { defaultStyles } from "@/constants/Style"
-import { Ionicons } from "@expo/vector-icons"
+import { Room } from "@/interface/Room"
+import { Wishlist } from "@/interface/Wishlist"
 import { Link } from "expo-router"
+import {
+	FlatList,
+	ListRenderItem,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+} from "react-native"
 import Animated, {
 	FadeInRight,
 	FadeOutLeft,
 } from "react-native-reanimated"
-import { useEffect, useRef, useState } from "react"
-import {
-	BottomSheetFlatList,
-	BottomSheetFlatListMethods,
-} from "@gorhom/bottom-sheet"
-import { FlatList } from "react-native"
-import { Homestay } from "@/interface/Room"
 
 interface Props {
-	listings: any[]
+	listings: Room[]
 }
 
 const Listings = ({ listings: items }: Props) => {
-	const listRef = useRef<BottomSheetFlatListMethods>(null)
-	const [loading, setLoading] = useState<boolean>(false)
-
-	const renderRow: ListRenderItem<any> = ({ item }) => (
-		<Link href={`/listing/${item.id}`} asChild>
+	const renderRow: ListRenderItem<Wishlist> = ({
+		item,
+	}) => (
+		<Link href={`/listing/${item.room._id}`} asChild>
 			<TouchableOpacity>
 				<Animated.View
 					style={styles.listing}
@@ -37,7 +31,11 @@ const Listings = ({ listings: items }: Props) => {
 					exiting={FadeOutLeft}
 				>
 					<Animated.Image
-						source={{ uri: item.medium_url }}
+						source={{
+							uri:
+								(item?.room.thumbnail_urls as any) ||
+								"https://via.assets.so/img.jpg?w=400&h=150&tc=blue&bg=#cecece",
+						}}
 						style={styles.image}
 					/>
 
@@ -55,16 +53,16 @@ const Listings = ({ listings: items }: Props) => {
 								width: "75%",
 							}}
 						>
-							{item.name}
+							{item.room.name}
 						</Text>
 					</View>
 					<View>
 						<Text style={{ fontFamily: "mon" }}>
-							{item.room_type}
+							{item.room.room_type}
 						</Text>
 						<View style={{ flexDirection: "row", gap: 4 }}>
 							<Text style={{ fontFamily: "mon-sb" }}>
-								€ {item.price}
+								€ {item.room.price}
 							</Text>
 							<Text style={{ fontFamily: "mon" }}>
 								night
@@ -85,7 +83,7 @@ const Listings = ({ listings: items }: Props) => {
 						}}
 					>
 						<Text style={{ fontFamily: "mon" }}>
-							{item.summary}
+							{item.room.summary}
 						</Text>
 					</View>
 				</Animated.View>
@@ -106,8 +104,7 @@ const Listings = ({ listings: items }: Props) => {
 			</Text>
 			<FlatList
 				renderItem={renderRow}
-				data={loading ? [] : items}
-				// ref={listRef}
+				data={items as any}
 				ListHeaderComponent={
 					<Text style={styles.info}>
 						{items.length} homes

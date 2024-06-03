@@ -34,7 +34,7 @@ const LoginWithoutEmailField = () => {
 
 			if (email) {
 				const res = await UserAPI.login(email, password)
-				console.log(res?.data)
+
 				if (res?.status === 200) {
 					const {
 						_id,

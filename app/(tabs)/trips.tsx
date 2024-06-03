@@ -17,14 +17,11 @@ const Trips = () => {
 		const _id: any = await getValueSecureStore("id")
 		const token: any = await getValueSecureStore("token")
 
-		console.log("id: ", _id)
-		console.log("token: ", token)
 		const res = await RoomAPI.getReservationRoomByUserId(
 			_id,
 			token
 		)
 		setTrips(sortBookingsByStartDate(res))
-		console.log(res)
 	}
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>

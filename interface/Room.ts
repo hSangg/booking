@@ -1,4 +1,4 @@
-import { User } from "./Host"
+import { User } from "@/store/useUserStore"
 
 export interface Room {
 	_id: string

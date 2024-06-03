@@ -30,9 +30,6 @@ const DetailPage = () => {
 	const userID = user._id
 	const [messages, setMessages] = useState<any>([])
 
-	console.log("room-id", roomID)
-	console.log("user-id", userID)
-
 	useLayoutEffect(() => {
 		const collectionRef = collection(db, "chats")
 		const q = query(
@@ -42,7 +39,6 @@ const DetailPage = () => {
 		)
 
 		const unsubscribe = onSnapshot(q, (querySnapshot) => {
-			console.log("querySnapshot unsusbscribe")
 			setMessages(
 				querySnapshot.docs.map((doc) => ({
 					_id: doc.data()._id,

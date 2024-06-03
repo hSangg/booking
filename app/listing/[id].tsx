@@ -2,7 +2,7 @@ import { RoomAPI } from "@/api/RoomAPI"
 import Colors from "@/constants/Colors"
 import { defaultStyles } from "@/constants/Style"
 import { Room } from "@/interface/Room"
-import { Ionicons } from "@expo/vector-icons"
+import { AntDesign, Ionicons } from "@expo/vector-icons"
 import {
 	Link,
 	router,
@@ -32,14 +32,17 @@ import Animated, {
 } from "react-native-reanimated"
 import Carousel from "react-native-reanimated-carousel"
 import { UtilFunction } from "../utils/utilFunction"
+import { WishlistHandle } from "@/utils/Function"
+import { Wishlist } from "@/interface/Wishlist"
 const { width } = Dimensions.get("window")
 const IMG_HEIGHT = 340
 
 const DetailsPage = () => {
-	const { id } = useLocalSearchParams()
+	const { id: room_id } = useLocalSearchParams()
 	const [homeStay, setHomeStay] = useState<Room>()
 	const navigation = useNavigation()
 	const scrollRef = useAnimatedRef<Animated.ScrollView>()
+	const [type, setType] = useState<string>()
 
 	const getRoomById = async (id: string) => {
 		try {
@@ -51,7 +54,8 @@ const DetailsPage = () => {
 	}
 
 	useEffect(() => {
-		getRoomById(id.toString())
+		getRoomById(room_id as string)
+		handleWishlist()
 	}, [])
 
 	const shareRoom = async () => {
@@ -63,6 +67,34 @@ const DetailsPage = () => {
 		} catch (err) {
 			console.log(err)
 		}
+	}
+
+	const handleLoveButtonClick = async () => {
+		console.log("click on: ", room_id)
+		console.log("type: ", type)
+		if (type == "no") {
+			// call api add
+			await WishlistHandle.addToWishList(room_id as string)
+			//remove list love
+			setType("yes")
+		} else {
+			// call api remove
+			await WishlistHandle.removeFromWishList(
+				room_id as string
+			)
+			setType("no")
+		}
+	}
+
+	const handleWishlist = async () => {
+		const res: Wishlist[] =
+			await WishlistHandle.getWishList()
+		const idList = res.map((x) => x.room._id)
+		const checkExit = idList.includes(room_id as string)
+			? "yes"
+			: "no"
+		console.log("check exit: ", checkExit)
+		setType(checkExit)
 	}
 
 	useLayoutEffect(() => {
@@ -87,13 +119,6 @@ const DetailsPage = () => {
 							color={"#000"}
 						/>
 					</TouchableOpacity>
-					<TouchableOpacity style={styles.roundButton}>
-						<Ionicons
-							name='heart-outline'
-							size={22}
-							color={"#000"}
-						/>
-					</TouchableOpacity>
 				</View>
 			),
 			headerLeft: () => (
@@ -112,27 +137,6 @@ const DetailsPage = () => {
 	}, [])
 
 	const scrollOffset = useScrollViewOffset(scrollRef)
-
-	const imageAnimatedStyle = useAnimatedStyle(() => {
-		return {
-			transform: [
-				{
-					translateY: interpolate(
-						scrollOffset.value,
-						[-IMG_HEIGHT, 0, IMG_HEIGHT, IMG_HEIGHT],
-						[-IMG_HEIGHT / 2, 0, IMG_HEIGHT * 0.75]
-					),
-				},
-				{
-					scale: interpolate(
-						scrollOffset.value,
-						[-IMG_HEIGHT, 0, IMG_HEIGHT],
-						[2, 1, 1]
-					),
-				},
-			],
-		}
-	})
 
 	const headerAnimatedStyle = useAnimatedStyle(() => {
 		return {
@@ -177,6 +181,7 @@ const DetailsPage = () => {
 
 				<View style={styles.infoContainer}>
 					<Text style={styles.name}>{homeStay?.name}</Text>
+
 					<Text style={styles.location}>
 						{homeStay?.room_type} in{" "}
 						{homeStay?.smart_location}
@@ -193,6 +198,24 @@ const DetailsPage = () => {
 						}}
 					>
 						<Ionicons name='star' size={16} />
+						<TouchableOpacity
+							onPress={handleLoveButtonClick}
+							style={styles.roundButton}
+						>
+							{type == "yes" ? (
+								<AntDesign
+									name='heart'
+									size={24}
+									color={Colors.primary}
+								/>
+							) : (
+								<Ionicons
+									name='heart-outline'
+									size={24}
+									color='#000'
+								/>
+							)}
+						</TouchableOpacity>
 					</View>
 					<View style={styles.divider} />
 
@@ -207,7 +230,7 @@ const DetailsPage = () => {
 							<Text
 								style={{ fontSize: 14, fontFamily: "mon" }}
 							>
-								Hosted by {homeStay?.host?.name}
+								Hosted by {homeStay?.host?.username}
 							</Text>
 							<Text
 								onPress={() =>
