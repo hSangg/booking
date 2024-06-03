@@ -2,6 +2,7 @@ import Colors from "@/constants/Colors"
 import { db } from "@/firebase"
 import { useUserStore } from "@/store/useUserStore"
 import {
+	Stack,
 	useLocalSearchParams,
 	useNavigation,
 } from "expo-router"
@@ -31,6 +32,7 @@ const DetailPage = () => {
 	const [messages, setMessages] = useState<any>([])
 
 	useLayoutEffect(() => {
+		console.log(roomID)
 		const collectionRef = collection(db, "chats")
 		const q = query(
 			collectionRef,
@@ -70,6 +72,11 @@ const DetailPage = () => {
 
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
+			<Stack.Screen
+				options={{
+					header: () => <></>,
+				}}
+			></Stack.Screen>
 			<GiftedChat
 				messages={messages}
 				showAvatarForEveryMessage={false}

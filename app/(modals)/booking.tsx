@@ -1,55 +1,37 @@
-import {
-	View,
-	Text,
-	StyleSheet,
-	ScrollView,
-	Image,
-	SafeAreaView,
-} from "react-native"
-import { useState } from "react"
-import Animated, { FadeIn, FadeOut, SlideInDown } from "react-native-reanimated"
-import { Ionicons } from "@expo/vector-icons"
-import { BlurView } from "expo-blur"
-import { GestureHandlerRootView, TextInput } from "react-native-gesture-handler"
-import { TouchableOpacity } from "@gorhom/bottom-sheet"
-import { defaultStyles } from "@/constants/Style"
-import Colors from "@/constants/Colors"
 import { places } from "@/assets/data/places"
+import Colors from "@/constants/Colors"
+import { defaultStyles } from "@/constants/Style"
+import { Ionicons } from "@expo/vector-icons"
+import { TouchableOpacity } from "@gorhom/bottom-sheet"
+import { BlurView } from "expo-blur"
 import { useRouter } from "expo-router"
+import { useEffect, useState } from "react"
+import {
+	Image,
+	ScrollView,
+	StyleSheet,
+	Text,
+	View,
+} from "react-native"
+import {
+	GestureHandlerRootView,
+	TextInput,
+} from "react-native-gesture-handler"
+import Animated, {
+	FadeIn,
+	FadeOut,
+	SlideInDown,
+} from "react-native-reanimated"
 // @ts-ignore
 import DatePicker from "react-native-modern-datepicker"
-
-const AnimatedTouchableOpacity =
-	Animated.createAnimatedComponent(TouchableOpacity)
-
-const guestsGropus = [
-	{
-		name: "Adults",
-		text: "Ages 13 or above",
-		count: 0,
-	},
-	{
-		name: "Children",
-		text: "Ages 2-12",
-		count: 0,
-	},
-	{
-		name: "Infants",
-		text: "Under 2",
-		count: 0,
-	},
-	{
-		name: "Pets",
-		text: "Pets allowed",
-		count: 0,
-	},
-]
+import { SearchOptions } from "@/interface/SearchOptions"
+import { RoomAPI } from "@/api/RoomAPI"
+import { useHomestayStore } from "@/store/useHomestayStore"
 
 const Page = () => {
 	const [openCard, setOpenCard] = useState(0)
 	const [selectedPlace, setSelectedPlace] = useState(0)
 
-	const [groups, setGroups] = useState(guestsGropus)
 	const router = useRouter()
 	const today = new Date().toISOString().substring(0, 10)
 
@@ -58,24 +40,47 @@ const Page = () => {
 		setOpenCard(0)
 	}
 
+	const { homeStayList, updateHomestayList } =
+		useHomestayStore()
+
+	const [search, setSearch] = useState<SearchOptions>()
+	const handleSearch = async () => {
+		const getRoomCondition: SearchOptions = {
+			...(search as any),
+		}
+		const res = await RoomAPI.getRoom(
+			getRoomCondition as any
+		)
+		console.log("res search: ", res)
+		if (Array.isArray(res?.rooms))
+			updateHomestayList(res?.rooms)
+	}
+
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
-			<BlurView intensity={70} style={styles.container} tint='light'>
+			<BlurView
+				intensity={70}
+				style={styles.container}
+				tint='light'
+				pointerEvents='box-none'
+			>
 				{/*  Where */}
 				<View style={styles.card}>
 					{openCard != 0 && (
-						<AnimatedTouchableOpacity
+						<TouchableOpacity
 							onPress={() => setOpenCard(0)}
 							style={styles.cardPreview}
-							entering={FadeIn.duration(200)}
-							exiting={FadeOut.duration(200)}
 						>
 							<Text style={styles.previewText}>Where</Text>
-							<Text style={styles.previewdData}>I'm flexible</Text>
-						</AnimatedTouchableOpacity>
+							<Text style={styles.previewdData}>
+								I'm flexible
+							</Text>
+						</TouchableOpacity>
 					)}
 
-					{openCard == 0 && <Text style={styles.cardHeader}>Where to?</Text>}
+					{openCard == 0 && (
+						<Text style={styles.cardHeader}>Where to?</Text>
+					)}
 					{openCard == 0 && (
 						<Animated.View
 							entering={FadeIn}
@@ -93,13 +98,21 @@ const Page = () => {
 									style={styles.inputField}
 									placeholder='Search destinations'
 									placeholderTextColor={Colors.grey}
+									onChangeText={(text) =>
+										setSearch({
+											...(search as any),
+											smart_location: text,
+										})
+									}
 								/>
 							</View>
 
 							<ScrollView
 								horizontal
 								showsHorizontalScrollIndicator={false}
-								contentContainerStyle={styles.placesContainer}
+								contentContainerStyle={
+									styles.placesContainer
+								}
 							>
 								{places.map((item, index) => (
 									<TouchableOpacity
@@ -114,7 +127,12 @@ const Page = () => {
 													: styles.place
 											}
 										/>
-										<Text style={{ fontFamily: "mon", paddingTop: 6 }}>
+										<Text
+											style={{
+												fontFamily: "mon",
+												paddingTop: 6,
+											}}
+										>
 											{item.title}
 										</Text>
 									</TouchableOpacity>
@@ -127,19 +145,21 @@ const Page = () => {
 				{/* When */}
 				<View style={styles.card}>
 					{openCard != 1 && (
-						<AnimatedTouchableOpacity
+						<TouchableOpacity
 							onPress={() => setOpenCard(1)}
 							style={styles.cardPreview}
-							entering={FadeIn.duration(200)}
-							exiting={FadeOut.duration(200)}
 						>
 							<Text style={styles.previewText}>When</Text>
-							<Text style={styles.previewdData}>Any week</Text>
-						</AnimatedTouchableOpacity>
+							<Text style={styles.previewdData}>
+								Any week
+							</Text>
+						</TouchableOpacity>
 					)}
 
 					{openCard == 1 && (
-						<Text style={styles.cardHeader}>When's your trip?</Text>
+						<Text style={styles.cardHeader}>
+							When's your trip?
+						</Text>
 					)}
 
 					{openCard == 1 && (
@@ -154,108 +174,10 @@ const Page = () => {
 								current={today}
 								selected={today}
 								mode={"calendar"}
-								onSelectedChange={(date: any) => console.log(date)}
+								onSelectedChange={(date: any) =>
+									console.log(date)
+								}
 							/>
-						</Animated.View>
-					)}
-				</View>
-
-				{/* Guests */}
-				<View style={styles.card}>
-					{openCard != 2 && (
-						<AnimatedTouchableOpacity
-							onPress={() => setOpenCard(2)}
-							style={styles.cardPreview}
-							entering={FadeIn.duration(200)}
-							exiting={FadeOut.duration(200)}
-						>
-							<Text style={styles.previewText}>Who</Text>
-							<Text style={styles.previewdData}>Add guests</Text>
-						</AnimatedTouchableOpacity>
-					)}
-
-					{openCard == 2 && (
-						<Text style={styles.cardHeader}>Who's coming?</Text>
-					)}
-
-					{openCard == 2 && (
-						<Animated.View style={styles.cardBody}>
-							{groups.map((item, index) => (
-								<View
-									key={index}
-									style={[
-										styles.guestItem,
-										index + 1 < guestsGropus.length ? styles.itemBorder : null,
-									]}
-								>
-									<View>
-										<Text style={{ fontFamily: "mon-sb", fontSize: 14 }}>
-											{item.name}
-										</Text>
-										<Text
-											style={{
-												fontFamily: "mon",
-												fontSize: 14,
-												color: Colors.grey,
-											}}
-										>
-											{item.text}
-										</Text>
-									</View>
-
-									<View
-										style={{
-											flexDirection: "row",
-											gap: 10,
-											alignItems: "center",
-											justifyContent: "center",
-										}}
-									>
-										<TouchableOpacity
-											onPress={() => {
-												const newGroups = [...groups]
-												newGroups[index].count =
-													newGroups[index].count > 0
-														? newGroups[index].count - 1
-														: 0
-
-												setGroups(newGroups)
-											}}
-										>
-											<Ionicons
-												name='remove-circle-outline'
-												size={26}
-												color={
-													groups[index].count > 0 ? Colors.grey : "#cdcdcd"
-												}
-											/>
-										</TouchableOpacity>
-										<Text
-											style={{
-												fontFamily: "mon",
-												fontSize: 16,
-												minWidth: 18,
-												textAlign: "center",
-											}}
-										>
-											{item.count}
-										</Text>
-										<TouchableOpacity
-											onPress={() => {
-												const newGroups = [...groups]
-												newGroups[index].count++
-												setGroups(newGroups)
-											}}
-										>
-											<Ionicons
-												name='add-circle-outline'
-												size={26}
-												color={Colors.grey}
-											/>
-										</TouchableOpacity>
-									</View>
-								</View>
-							))}
 						</Animated.View>
 					)}
 				</View>
@@ -273,7 +195,10 @@ const Page = () => {
 						}}
 					>
 						<TouchableOpacity
-							style={{ height: "100%", justifyContent: "center" }}
+							style={{
+								height: "100%",
+								justifyContent: "center",
+							}}
 							onPress={onClearAll}
 						>
 							<Text
@@ -288,8 +213,11 @@ const Page = () => {
 						</TouchableOpacity>
 
 						<TouchableOpacity
-							style={[defaultStyles.btn, { paddingRight: 20, paddingLeft: 50 }]}
-							onPress={() => router.back()}
+							style={[
+								defaultStyles.btn,
+								{ paddingRight: 20, paddingLeft: 50 },
+							]}
+							onPress={handleSearch}
 						>
 							<Ionicons
 								name='search-outline'
@@ -297,7 +225,9 @@ const Page = () => {
 								style={defaultStyles.btnIcon}
 								color={"#fff"}
 							/>
-							<Text style={defaultStyles.btnText}>Search</Text>
+							<Text style={defaultStyles.btnText}>
+								Search
+							</Text>
 						</TouchableOpacity>
 					</View>
 				</Animated.View>
