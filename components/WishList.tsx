@@ -95,8 +95,8 @@ const Listings = ({ listings: items }: Props) => {
 		<View style={defaultStyles.container}>
 			<Text
 				style={{
-					fontFamily: "mon-b",
-					fontSize: 20,
+					fontFamily: "damion",
+					fontSize: 40,
 					textAlign: "center",
 				}}
 			>

@@ -62,6 +62,9 @@ export default function RootLayout() {
 					"mon-sb": require("@/assets/fonts/Montserrat-SemiBold.ttf"),
 					"mon-b": require("@/assets/fonts/Montserrat-Bold.ttf"),
 					"mon-t": require("@/assets/fonts/Montserrat-Thin.ttf"),
+					"amita-b": require("@/assets/fonts/Amita-Bold.ttf"),
+					amita: require("@/assets/fonts/Amita-Regular.ttf"),
+					damion: require("@/assets/fonts/Damion-Regular.ttf"),
 				})
 				// Artificially delay for two seconds to simulate a slow loading
 				// experience. Please remove this if you copy and paste the code!

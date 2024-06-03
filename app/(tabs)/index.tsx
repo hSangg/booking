@@ -3,6 +3,7 @@ import { RoomAPI } from "@/api/RoomAPI"
 import ExploreHeader from "@/components/ExploreHeader"
 import ListingBottomSheet from "@/components/ListingBottomSheet"
 import ListingMap from "@/components/ListingMap"
+import { useHomestayStore } from "@/store/useHomestayStore"
 import { Stack } from "expo-router"
 import React, { useEffect, useState } from "react"
 import { View } from "react-native"
@@ -17,20 +18,18 @@ const Index = () => {
 		setCategory(category)
 	}
 
-	const [homeStayList, setHomeStayList] = useState<any>([])
+	const { homeStayList, updateHomestayList } =
+		useHomestayStore()
 
 	useEffect(() => {
 		getInitialRoom()
 	}, [])
 
 	const getInitialRoom = async () => {
-		try {
-			const getRoomCondition: any = null
-			const res = await RoomAPI.getRoom(getRoomCondition)
-			setHomeStayList(res?.data.rooms)
-		} catch (error) {
-			console.log(error)
-		}
+		const getRoomCondition: any = null
+		const res = await RoomAPI.getRoom(getRoomCondition)
+		if (Array.isArray(res?.rooms))
+			updateHomestayList(res?.rooms)
 	}
 
 	return (

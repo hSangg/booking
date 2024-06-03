@@ -1,43 +1,35 @@
 import { defaultStyles } from "@/constants/Style"
+import { db } from "@/firebase"
 import {
 	collection,
-	doc,
-	getDoc,
 	getDocs,
-	or,
 	query,
-	setDoc,
 	where,
 } from "firebase/firestore"
-import { Ionicons } from "@expo/vector-icons"
-import { db } from "@/firebase"
 
-import { Link } from "expo-router"
+import { useUserStore } from "@/store/useUserStore"
+import { Link, Stack, useFocusEffect } from "expo-router"
+import { useCallback, useState } from "react"
 import {
+	Button,
 	FlatList,
-	StyleSheet,
 	ListRenderItem,
+	StyleSheet,
 	Text,
 	TouchableOpacity,
 	View,
-	Button,
 } from "react-native"
 import Animated, {
 	FadeInRight,
 	FadeOutLeft,
 } from "react-native-reanimated"
-import { useUserStore } from "@/store/useUserStore"
-import { useState } from "react"
-
-const removeDuplicates = (array: any) => {
-	return [...new Set(array)]
-}
+import { SafeAreaView } from "react-native-safe-area-context"
 
 const Inbox = () => {
 	const { user } = useUserStore()
-	const [roomIDList, setRoomIDList] = useState<any>([])
+	const [roomChat, setRoomChat] = useState<any>([])
 	const renderRow: ListRenderItem<any> = ({ item }) => (
-		<Link href={`/message/${item}`} asChild>
+		<Link href={`/message/${item.room_id}`} asChild>
 			<TouchableOpacity>
 				<Animated.View
 					style={styles.listing}
@@ -64,15 +56,7 @@ const Inbox = () => {
 								fontSize: 16,
 							}}
 						>
-							{item.destinationUser}
-						</Text>
-						<Text
-							style={{
-								color: "#888888",
-								fontFamily: "mon",
-							}}
-						>
-							{item.lastingMessage}
+							{item.host_infor.name}
 						</Text>
 					</View>
 				</Animated.View>
@@ -82,42 +66,53 @@ const Inbox = () => {
 
 	const getData = async () => {
 		const userID = user._id
-
 		try {
 			const q = query(
 				collection(db, "roomChats"),
-				or(
-					where("first", "==", userID),
-					where("second", "==", userID)
-				)
+				where("user_id", "==", userID)
 			)
-			const list: any = []
 			const querySnapshot = await getDocs(q)
-			querySnapshot.docs.forEach((doc) => {
-				list.push(doc.id)
-			})
-
-			const uniqueArray = removeDuplicates(list)
-			setRoomIDList(uniqueArray)
+			const list = querySnapshot.docs.map((doc) =>
+				doc.data()
+			)
+			setRoomChat(list)
 		} catch (error) {
 			console.log(error)
 		}
 	}
 
+	useFocusEffect(
+		useCallback(() => {
+			getData()
+		}, [])
+	)
+
 	return (
-		<View style={defaultStyles.container}>
-			<Button title='Test' onPress={getData}></Button>
+		<SafeAreaView style={defaultStyles.container}>
+			<Stack.Screen
+				options={{
+					header: () => <></>,
+				}}
+			></Stack.Screen>
+			<Text
+				style={{
+					fontFamily: "damion",
+					fontSize: 40,
+					textAlign: "center",
+					marginTop: 20,
+				}}
+			>
+				Your inbox
+			</Text>
 			<FlatList
 				renderItem={renderRow}
-				data={roomIDList}
+				data={roomChat}
 				// ref={listRef}
 				ListHeaderComponent={
-					<Text style={styles.info}>
-						{roomIDList.length} homes
-					</Text>
+					<Text style={styles.info}>{roomChat.length}</Text>
 				}
 			/>
-		</View>
+		</SafeAreaView>
 	)
 }
 export default Inbox

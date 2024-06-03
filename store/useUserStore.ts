@@ -29,6 +29,6 @@ export const useUserStore = create<State & Action>(
 			created_at: new Date(),
 			token: "",
 		},
-		updateUser: (user: User) => set(() => ({ user: user })),
+		updateUser: (user: User) => set(() => ({ user })),
 	})
 )

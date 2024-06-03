@@ -1,18 +1,10 @@
-import forgetPassword from "@/app/(modals)/forgetPassword"
-import { axiosClient } from "./AxiosClient"
 import { createQueryString } from "@/app/utils/utilFunction"
-
-export interface GetRoomCondition {
-	room_type: string | null
-	smart_location: string | null
-	min_price: string | null
-	max_price: string | null
-	is_sort_price: boolean | null
-}
+import { SearchOptions } from "@/interface/SearchOptions"
+import { axiosClient } from "./AxiosClient"
 
 export const RoomAPI = {
 	getRoom: async (
-		getRoomCondition: GetRoomCondition | null
+		getRoomCondition: SearchOptions | null
 	) => {
 		try {
 			let queryString = "/room/getRoom?"
@@ -20,9 +12,16 @@ export const RoomAPI = {
 				queryString += createQueryString(getRoomCondition)
 			}
 
+			console.log("queryString: ", queryString)
+
 			const res = await axiosClient.get(queryString)
-			return res
-		} catch (error) {}
+			console.log("res get room: ", res)
+			if (res.status === 200) return res.data
+
+			return null
+		} catch (error) {
+			return null
+		}
 	},
 	getRoomById: async (id: string) => {
 		try {
@@ -30,6 +29,7 @@ export const RoomAPI = {
 				"/room/getRoomInfo?room_id=" + id
 			).trim()
 			const res = await axiosClient.get(queryString)
+
 			if (res.status === 200) {
 				return res
 			}

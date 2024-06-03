@@ -220,11 +220,19 @@ const DetailsPage = () => {
 					<View style={styles.divider} />
 
 					<View style={styles.hostView}>
-						<Link
-							href={`/host/${homeStay?.host?._id}`}
-							// source={{ uri: room.host_picture_url }}
-							style={styles.host}
-						/>
+						<TouchableOpacity
+							onPress={() =>
+								router.push(`/host/${homeStay?.host?._id}`)
+							}
+						>
+							<Image
+								source={{
+									uri: "https://avatar.iran.liara.run/public",
+								}}
+								width={50}
+								height={50}
+							/>
+						</TouchableOpacity>
 
 						<View>
 							<Text
@@ -437,3 +445,5 @@ const styles = StyleSheet.create({
 })
 
 export default DetailsPage
+
+//href={`/host/${homeStay?.host?._id}`}

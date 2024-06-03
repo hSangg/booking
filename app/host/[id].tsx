@@ -11,6 +11,7 @@ import {
 	useNavigation,
 } from "expo-router"
 import {
+	addDoc,
 	collection,
 	doc,
 	getDocs,
@@ -42,11 +43,11 @@ import { useUserStore } from "@/store/useUserStore"
 
 const DetailPage = () => {
 	const navigation = useNavigation()
-	const { id } = useLocalSearchParams()
+	const { id: hostID } = useLocalSearchParams()
 	const { user } = useUserStore()
 	const [host, setHost] = useState<Host>()
 	useEffect(() => {
-		getHostInfor(id as string)
+		getHostInfor(hostID as string)
 	}, [])
 	const getHostInfor = async (id: string) => {
 		const res = await HostAPI.getHostInformation(id)
@@ -60,8 +61,8 @@ const DetailPage = () => {
 		// Query to check if a room chat already exists
 		const roomChatQuery = query(
 			roomChatsRef,
-			where("first", "==", id),
-			where("second", "==", user._id)
+			where("host_id", "==", hostID),
+			where("user_id", "==", user._id)
 		)
 		const querySnapshot = await getDocs(roomChatQuery)
 
@@ -70,15 +71,17 @@ const DetailPage = () => {
 		if (querySnapshot.empty) {
 			// Room chat does not exist, create a new one
 			roomID = generateId()
-			await setDoc(doc(roomChatsRef, roomID), {
-				first: id,
-				second: user._id,
+			await addDoc(roomChatsRef, {
+				host_id: hostID,
+				room_id: roomID,
+				user_id: user._id,
 				created_At: currentTimestamp,
+				host_infor: host?.user,
 			})
 		} else {
 			// Room chat exists, get the existing roomID
 			querySnapshot.forEach((doc) => {
-				roomID = doc.id // Get the room ID from the existing document
+				roomID = doc.id
 			})
 		}
 
@@ -155,102 +158,109 @@ const DetailPage = () => {
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<Stack.Screen
 				options={{
-					headerTitle: host?.user.name,
-					headerLeft: () => (
-						<TouchableOpacity
-							style={styles.roundButton}
-							onPress={() => navigation.goBack()}
-						>
-							<Ionicons
-								name='chevron-back'
-								size={24}
-								color={"#000"}
-							/>
-						</TouchableOpacity>
-					),
+					header: () => <></>,
 				}}
 			></Stack.Screen>
-			<SafeAreaView style={{ flex: 1 }}>
+			<SafeAreaView
+				style={{ flex: 1, backgroundColor: "white" }}
+			>
 				<View
 					style={{
-						flexDirection: "row",
+						flexDirection: "column",
 						padding: 10,
 						backgroundColor: "#fff",
 					}}
 				>
-					<Image
-						source={{
-							uri: "https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/398492825_2334225390300563_2757619712327292917_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeHmYr9ejngbLlwuCZGfCHKAr_6mPp2vEOev_qY-na8Q50xDO-KX72UttaZUYEbB0Dx445OAGU5MUiGtLdSOlrLl&_nc_ohc=WXviCk5_sRYQ7kNvgEA2aQn&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYAj_peJeFSCTDqA5GbahdBHH7RxJljR5lhDfJ1jz_FBwg&oe=66546604",
-						}}
-						style={[styles.image]}
-						resizeMode='cover'
-					/>
 					<View
 						style={{
-							flexDirection: "column",
-							gap: 2,
-							justifyContent: "center",
-							marginLeft: 10,
+							flexDirection: "row",
+							alignItems: "center",
+							gap: 5,
+							borderBottomColor: "#cccccc",
+							paddingBottom: 15,
+							borderBottomWidth: 2,
 						}}
 					>
+						<Image
+							source={{
+								uri: "https://scontent.fsgn19-1.fna.fbcdn.net/v/t39.30808-6/398492825_2334225390300563_2757619712327292917_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeHmYr9ejngbLlwuCZGfCHKAr_6mPp2vEOev_qY-na8Q50xDO-KX72UttaZUYEbB0Dx445OAGU5MUiGtLdSOlrLl&_nc_ohc=WXviCk5_sRYQ7kNvgEA2aQn&_nc_ht=scontent.fsgn19-1.fna&oh=00_AYAj_peJeFSCTDqA5GbahdBHH7RxJljR5lhDfJ1jz_FBwg&oe=66546604",
+							}}
+							style={[styles.image]}
+							resizeMode='cover'
+						/>
+
 						<View>
 							<Text
 								style={{
-									fontFamily: "mon-b",
-									fontSize: 18,
+									fontFamily: "damion",
+									fontSize: 25,
 								}}
 							>
 								{host?.user.name}
 							</Text>
 						</View>
+					</View>
 
-						<View
-							style={{
-								backgroundColor: Colors.primary,
-								paddingHorizontal: 20,
-								paddingVertical: 10,
-								marginTop: 10,
-								borderRadius: 20,
-							}}
-						>
+					<View
+						style={{
+							flexDirection: "row",
+							gap: 12,
+
+							marginTop: 12,
+							justifyContent: "center",
+						}}
+					>
+						<TouchableOpacity>
 							<View
 								style={{
-									flexDirection: "row",
+									flexDirection: "column",
 									alignItems: "center",
-									justifyContent: "center",
-									marginBottom: 10,
-									gap: 5,
+									backgroundColor: "#e5e5e5",
+									paddingHorizontal: 30,
+									borderRadius: 10,
+									gap: 10,
+									paddingVertical: 15,
 								}}
 							>
 								<Ionicons
 									name='navigate-circle-outline'
-									size={18}
-									color='white'
+									size={30}
+									color='black'
 								/>
-								<Text style={{ color: "white" }}>
-									{host?.user.phone_number}
-								</Text>
+								<View>
+									<Text style={{ textAlign: "center" }}>
+										Phone number
+									</Text>
+									<Text
+										style={{
+											color: "black",
+											textAlign: "center",
+										}}
+									>
+										{host?.user.phone_number}
+									</Text>
+								</View>
 							</View>
+						</TouchableOpacity>
 
-							<TouchableOpacity
-								onPress={handleOnMessage}
-								style={{
-									backgroundColor: "white",
-									paddingVertical: 5,
-									paddingHorizontal: 10,
-									borderRadius: 20,
-									flexDirection: "row",
-									alignItems: "center",
-									gap: 5,
-								}}
-							>
-								<Ionicons
-									name='chatbubble-outline'
-									size={18}
-								/>
-								<Text>Send Message</Text>
-							</TouchableOpacity>
-						</View>
+						<TouchableOpacity
+							onPress={handleOnMessage}
+							style={{
+								flexDirection: "column",
+								alignItems: "center",
+								backgroundColor: "#e5e5e5",
+								paddingHorizontal: 30,
+								borderRadius: 10,
+								gap: 10,
+								paddingVertical: 15,
+							}}
+						>
+							<Ionicons
+								name='chatbubble-outline'
+								size={30}
+							/>
+							<Text>Send Message</Text>
+						</TouchableOpacity>
 					</View>
 				</View>
 
@@ -260,7 +270,10 @@ const DetailPage = () => {
 					// ref={listRef}
 					ListHeaderComponent={
 						<Text style={styles.info}>
-							{host?.hostedList?.length} homes
+							{host?.hostedList?.length == 0
+								? "Waiting for many special room from " +
+								  host.user.name
+								: "many"}
 						</Text>
 					}
 				/>
@@ -281,9 +294,9 @@ const styles = StyleSheet.create({
 		marginVertical: 16,
 	},
 	image: {
-		width: 100,
-		height: 100,
-		borderRadius: 10,
+		width: 50,
+		height: 50,
+		borderRadius: 50,
 	},
 	imageItem: {
 		width: "100%",
