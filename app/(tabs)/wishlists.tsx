@@ -1,14 +1,31 @@
-import { View, Text } from "react-native"
-import React from "react"
 import listingsData from "@/assets/data/airbnb-listings.json"
-import { Stack } from "expo-router"
-import { SafeAreaView } from "react-native-safe-area-context"
 import WishList from "@/components/WishList"
-import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { Room } from "@/interface/Room"
+import { Wishlist } from "@/interface/Wishlist"
+import { WishlistHandle } from "@/utils/Function"
+import { Stack, useFocusEffect } from "expo-router"
+import React, {
+	useCallback,
+	useEffect,
+	useState,
+} from "react"
+import { Button, View } from "react-native"
+import { GestureHandlerRootView } from "react-native-gesture-handler"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 const Wishlists = () => {
-	const listing = (listingsData as Room[]).slice(0, 3)
+	const [list, setList] = useState([])
+
+	useFocusEffect(
+		useCallback(() => {
+			init()
+		}, [])
+	)
+	const init = async () => {
+		const res: Wishlist[] =
+			await WishlistHandle.getWishList()
+		setList(res as any)
+	}
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<SafeAreaView style={{ flex: 1 }}>
@@ -18,7 +35,7 @@ const Wishlists = () => {
 					}}
 				></Stack.Screen>
 
-				<WishList listings={listing} />
+				<WishList listings={list} />
 			</SafeAreaView>
 		</GestureHandlerRootView>
 	)

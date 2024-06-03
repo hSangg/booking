@@ -76,7 +76,6 @@ const ListingMap = ({ listings }: Props) => {
 	}
 
 	const handleSubmit = async () => {
-		console.log("search destination: ", searchDestination)
 		const response: DMS = await LocationAPI.searchLocation(
 			searchDestination
 		)

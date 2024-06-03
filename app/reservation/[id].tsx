@@ -108,7 +108,6 @@ const DetailPage = () => {
 				startDate: date.dateString,
 				endDate: "",
 			})
-			console.log("0")
 		} else if (startDate && endDate === "") {
 			if (date.dateString !== startDate) {
 				if (
@@ -132,13 +131,11 @@ const DetailPage = () => {
 						endDate: date.dateString,
 					})
 			}
-			console.log("1")
 		} else {
 			setDateRange({
 				startDate: date.dateString,
 				endDate: "",
 			})
-			console.log("2")
 		}
 	}
 
@@ -150,12 +147,6 @@ const DetailPage = () => {
 		const room_id = id as string
 		const start_date = dateRange.startDate
 		const end_date = dateRange.endDate
-
-		console.log("user_id", user_id)
-		console.log("token", token)
-		console.log("room_id", room_id)
-		console.log("start_date", start_date)
-		console.log("end_date", end_date)
 
 		const res = await RoomAPI.reservation(
 			user_id,

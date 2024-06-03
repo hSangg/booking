@@ -1,22 +1,21 @@
-import { useFonts } from "expo-font"
-import { Slot, Stack, useRouter } from "expo-router"
+import { Stack, useRouter } from "expo-router"
 import { useCallback, useEffect, useState } from "react"
 
-import { useColorScheme } from "@/components/useColorScheme"
-import { ClerkProvider, useAuth } from "@clerk/clerk-expo"
-import { Ionicons } from "@expo/vector-icons"
-import * as SecureStore from "expo-secure-store"
-import { TouchableOpacity } from "react-native"
+import { UserAPI } from "@/api/UserAPI"
 import ModalHeader from "@/components/ModalHeader"
-import AppLoading from "expo-app-loading"
-import * as SplashScreen from "expo-splash-screen"
-import * as Font from "expo-font"
+import { useColorScheme } from "@/components/useColorScheme"
 import {
 	getValueSecureStore,
 	saveValueSecureStore,
 } from "@/store/SecureStore"
-import { UserAPI } from "@/api/UserAPI"
 import { User, useUserStore } from "@/store/useUserStore"
+import { ClerkProvider } from "@clerk/clerk-expo"
+import { Ionicons } from "@expo/vector-icons"
+import * as Font from "expo-font"
+import * as SecureStore from "expo-secure-store"
+import * as SplashScreen from "expo-splash-screen"
+import { TouchableOpacity } from "react-native"
+import { AuthHandle } from "@/utils/Function"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -119,42 +118,18 @@ function RootLayoutNav() {
 		(state) => state.updateUser
 	)
 
-	const login = async (email: string, password: string) => {
-		try {
-			const res = await UserAPI.login(email, password)
-			if (res?.status === 200) {
-				const {
-					_id,
-					name,
-					email,
-					phone_number,
-					created_at,
-				} = res?.data?.data
-				const user: User = {
-					_id,
-					token: res.data.token,
-					username: name,
-					email,
-					phoneNumber: phone_number,
-					isLogin: true,
-					created_at,
-				}
-				updateUser(user)
-				router.push("/(tabs)/profile")
-			}
-		} catch (error) {
-			console.log(error)
-		}
-	}
-
 	const checkLogedState = async () => {
 		const email = await getValueSecureStore("email")
 		const password = await getValueSecureStore("password")
 		if (email && !password) {
-			console.log("loginWithoutEmailField")
 			router.push("/(modals)/loginWithoutEmailField")
 		} else if (email && password) {
-			login(email, password)
+			const user = await AuthHandle.login(email, password)
+			// login fail
+			if (!user) return
+			// login success
+			updateUser(user)
+			router.push("/")
 		} else {
 			router.push("/(modals)/login")
 		}

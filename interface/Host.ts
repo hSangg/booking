@@ -1,6 +1,6 @@
 import { Room } from "./Room"
 
-export interface User {
+interface User {
 	_id: string
 	name: string
 	email: string

@@ -1,10 +1,24 @@
 import { axiosClient } from "./AxiosClient"
 
 export const WishlistAPI = {
-	getWishListByUserId: async () => {
-		const res = await axiosClient.get(
-			"wishList/getWishList"
-		)
+	getWishListByUserId: async (
+		user_id: string,
+		token: string
+	) => {
+		try {
+			const url = `/wishList/getWishList?user_id=${user_id}`
+			console.log("user_id ", user_id)
+			console.log("token ", token)
+			const res = await axiosClient.get(url, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+			console.log("status: ", res.status)
+			return res.data
+		} catch (error) {
+			return { data: [] }
+		}
 	},
 	addToWishlist: async (
 		user_id: string,
@@ -25,8 +39,7 @@ export const WishlistAPI = {
 					},
 				}
 			)
-
-			if (res.status === 200) console.log(res)
+			if (res.status === 201) return res
 		} catch (error) {
 			console.log("error at add to wishlist: ", error)
 		}
@@ -36,12 +49,19 @@ export const WishlistAPI = {
 		room_id: string,
 		token: string
 	) => {
-		const url = `/wishList/removeWishList?user_id=${user_id}&room_id=${room_id}`
-		const res = await axiosClient.delete(url, {
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${token}`,
-			},
-		})
+		try {
+			const url = `/wishList/removeWishList?user_id=${user_id}&room_id=${room_id}`
+			console.log("url remove wishlist=>>", url)
+			const res = await axiosClient.delete(url, {
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			console.log("res at remove wishlist =>>>>", res)
+		} catch (error) {
+			console.log("res at call remove wishlist =>>>", error)
+		}
 	},
 }

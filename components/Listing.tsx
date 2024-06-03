@@ -7,19 +7,28 @@ import {
 } from "react-native"
 import { defaultStyles } from "@/constants/Style"
 import { Ionicons } from "@expo/vector-icons"
-import { Link } from "expo-router"
+import { Link, useFocusEffect } from "expo-router"
 import Animated, {
 	FadeInRight,
 	FadeOutLeft,
 } from "react-native-reanimated"
-import { useEffect, useRef, useState } from "react"
+import {
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react"
 import {
 	BottomSheetFlatList,
 	BottomSheetFlatListMethods,
 } from "@gorhom/bottom-sheet"
 import { FlatList } from "react-native"
 import { Room } from "@/interface/Room"
-
+import { WishlistHandle } from "@/utils/Function"
+import { getValueSecureStore } from "@/store/SecureStore"
+import { Wishlist } from "@/interface/Wishlist"
+import AntDesign from "@expo/vector-icons/AntDesign"
+import Colors from "@/constants/Colors"
 interface Props {
 	listings: any[]
 	// refresh: number
@@ -29,13 +38,7 @@ interface Props {
 const Listings = ({ listings: items, category }: Props) => {
 	const listRef = useRef<BottomSheetFlatListMethods>(null)
 	const [loading, setLoading] = useState<boolean>(false)
-
-	const scrollListTop = () => {
-		listRef.current?.scrollToOffset({
-			offset: 0,
-			animated: true,
-		})
-	}
+	const [listLove, setListLove] = useState<any>([])
 
 	useEffect(() => {
 		setLoading(true)
@@ -44,6 +47,39 @@ const Listings = ({ listings: items, category }: Props) => {
 			setLoading(false)
 		}, 200)
 	}, [category])
+
+	useFocusEffect(
+		useCallback(() => {
+			handleWishlist()
+		}, [])
+	)
+	const handleLoveButtonClick = async (room_id: string) => {
+		// get state of this button
+		console.log("click on: ", room_id)
+		const checkType = listLove.includes(room_id)
+			? "remove"
+			: "add"
+		if (checkType === "add") {
+			// call api add
+			await WishlistHandle.addToWishList(room_id)
+			//remove list love
+			setListLove((pre: string[]) => [...pre, room_id])
+		} else {
+			// call api remove
+			await WishlistHandle.removeFromWishList(room_id)
+			//reload list love
+			let newList = [...listLove]
+			newList = newList.filter((x: string) => x != room_id)
+			setListLove(newList)
+		}
+	}
+
+	const handleWishlist = async () => {
+		const res: Wishlist[] =
+			await WishlistHandle.getWishList()
+		const idList = res.map((x) => x.room._id)
+		setListLove(idList)
+	}
 
 	const renderRow: ListRenderItem<Room> = ({ item }) => (
 		<Link href={`/listing/${item._id}`} asChild>
@@ -62,17 +98,26 @@ const Listings = ({ listings: items, category }: Props) => {
 						style={styles.image}
 					/>
 					<TouchableOpacity
+						onPress={() => handleLoveButtonClick(item._id)}
 						style={{
 							position: "absolute",
 							right: 30,
 							top: 30,
 						}}
 					>
-						<Ionicons
-							name='heart-outline'
-							size={24}
-							color='#000'
-						/>
+						{listLove.includes(item._id) ? (
+							<AntDesign
+								name='heart'
+								size={24}
+								color={Colors.primary}
+							/>
+						) : (
+							<Ionicons
+								name='heart-outline'
+								size={24}
+								color='#000'
+							/>
+						)}
 					</TouchableOpacity>
 					<View
 						style={{

@@ -20,9 +20,7 @@ const forgetPassword = () => {
 	const handleSubmit = async () => {
 		try {
 			const res = await UserAPI.verityOtp(OTP, email)
-			console.log("email: " + email)
-			console.log("OTP: " + OTP)
-			console.log("isValidOTP: ", res)
+
 			if (res?.status === "SUCCESS") {
 				// call API change password
 				router.push("/(information)/congatulation")
