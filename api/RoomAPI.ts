@@ -11,9 +11,7 @@ export const RoomAPI = {
 			if (getRoomCondition) {
 				queryString += createQueryString(getRoomCondition)
 			}
-
 			console.log("queryString: ", queryString)
-
 			const res = await axiosClient.get(queryString)
 			console.log("res get room: ", res)
 			if (res.status === 200) return res.data

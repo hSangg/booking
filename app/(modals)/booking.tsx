@@ -51,9 +51,10 @@ const Page = () => {
 		const res = await RoomAPI.getRoom(
 			getRoomCondition as any
 		)
-		console.log("res search: ", res)
 		if (Array.isArray(res?.rooms))
 			updateHomestayList(res?.rooms)
+
+		router.back()
 	}
 
 	return (

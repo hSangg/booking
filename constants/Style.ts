@@ -30,7 +30,7 @@ export const defaultStyles = StyleSheet.create({
 	},
 	btnText: {
 		color: "#fff",
-		fontSize: 30,
+		fontSize: 24,
 		fontFamily: "damion",
 	},
 	btnIcon: {
