@@ -39,7 +39,7 @@ const IMG_HEIGHT = 340
 
 const DetailsPage = () => {
 	const { id: room_id } = useLocalSearchParams()
-	const [homeStay, setHomeStay] = useState<Room>()
+	const [homeStay, setHomeStay] = useState<any>()
 	const navigation = useNavigation()
 	const scrollRef = useAnimatedRef<Animated.ScrollView>()
 	const [type, setType] = useState<string>()
@@ -238,7 +238,7 @@ const DetailsPage = () => {
 							<Text
 								style={{ fontSize: 14, fontFamily: "mon" }}
 							>
-								Hosted by {homeStay?.host?.username}
+								Hosted by {homeStay?.host?.name}
 							</Text>
 							<Text
 								onPress={() =>
