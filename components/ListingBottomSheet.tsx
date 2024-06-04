@@ -4,8 +4,10 @@ import BottomSheet, {
 	BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet"
 import React, { useMemo, useRef } from "react"
-import { View } from "react-native"
+import { View, Text } from "react-native"
 import Listings from "./Listing"
+import { Link, router } from "expo-router"
+import { TouchableOpacity } from "react-native-gesture-handler"
 
 interface Props {
 	listing: Room[]
@@ -32,6 +34,28 @@ const ListingBottomSheet = ({
 				}}
 			>
 				<View style={{ flex: 1 }}>
+					<TouchableOpacity
+						onPress={() => router.push("/reels/page")}
+						style={{
+							paddingHorizontal: 10,
+							backgroundColor: Colors.primary,
+							width: 100,
+							borderTopRightRadius: 15,
+							borderBottomRightRadius: 15,
+							marginBottom: 20,
+						}}
+					>
+						<Text
+							style={{
+								textAlign: "center",
+								fontFamily: "damion",
+								color: "white",
+								fontSize: 25,
+							}}
+						>
+							Reels
+						</Text>
+					</TouchableOpacity>
 					<Listings
 						listings={listing}
 						category={category}
