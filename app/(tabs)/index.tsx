@@ -3,6 +3,7 @@ import { RoomAPI } from "@/api/RoomAPI"
 import ExploreHeader from "@/components/ExploreHeader"
 import ListingBottomSheet from "@/components/ListingBottomSheet"
 import ListingMap from "@/components/ListingMap"
+import { SearchOptions } from "@/interface/SearchOptions"
 import { useHomestayStore } from "@/store/useHomestayStore"
 import { Stack } from "expo-router"
 import React, { useEffect, useState } from "react"
@@ -10,13 +11,19 @@ import { View } from "react-native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 
 const Index = () => {
-	// const homeStayList: Homestay[] = homeStayData
 	const [category, setCategory] =
 		useState<string>("Tiny homes")
 
 	const onDataChanged = (category: string) => {
 		setCategory(category)
 	}
+
+	useEffect(() => {
+		const getRoomCondition: SearchOptions = {
+			room_type: category,
+		} as any
+		getInitialRoom(getRoomCondition)
+	}, [category])
 
 	const { homeStayList, updateHomestayList } =
 		useHomestayStore()
@@ -25,11 +32,11 @@ const Index = () => {
 		getInitialRoom()
 	}, [])
 
-	const getInitialRoom = async () => {
-		const getRoomCondition: any = null
+	const getInitialRoom = async (
+		getRoomCondition: SearchOptions = {} as any
+	) => {
 		const res = await RoomAPI.getRoom(getRoomCondition)
-		if (Array.isArray(res?.rooms))
-			updateHomestayList(res?.rooms)
+		updateHomestayList(res?.rooms || [])
 	}
 
 	return (

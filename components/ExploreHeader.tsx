@@ -2,7 +2,7 @@ import Colors from "@/constants/Colors"
 import { Ionicons, MaterialIcons } from "@expo/vector-icons"
 import * as Haptics from "expo-haptics"
 import { Link } from "expo-router"
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 
 import {
 	StyleSheet,
@@ -130,8 +130,6 @@ const styles = StyleSheet.create({
 		height: 150,
 	},
 	scrollList: {
-		// flex:1,
-		// flexGrow:1,
 		width: "80%",
 		height: 300,
 	},
