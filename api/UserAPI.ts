@@ -1,12 +1,8 @@
-import forgetPassword from "@/app/(modals)/forgetPassword"
 import { axiosClient } from "./AxiosClient"
-import { useUserStore } from "@/store/useUserStore"
 
 export const UserAPI = {
 	login: async (email: string, password: string) => {
 		try {
-			console.log("call")
-
 			const response = await axiosClient.post(
 				"/auth/signIn",
 				{
@@ -21,7 +17,6 @@ export const UserAPI = {
 					},
 				}
 			)
-			console.log("call_login")
 			return response
 		} catch (error) {}
 	},
@@ -31,7 +26,6 @@ export const UserAPI = {
 		password: string,
 		phone_number: string
 	) => {
-		console.log("call signup")
 		const response = await axiosClient.post(
 			"/auth/signUp",
 			{
