@@ -1,82 +1,130 @@
+import React, { useEffect, useState } from "react";
 import {
 	View,
 	Text,
 	Button,
 	StyleSheet,
 	Image,
-} from "react-native"
-import React, { useState } from "react"
-import { useAuth } from "@clerk/clerk-expo"
-import { Link, Stack, router } from "expo-router"
-import { SafeAreaView } from "react-native-safe-area-context"
-import { defaultStyles } from "@/constants/Style"
-import { Ionicons } from "@expo/vector-icons"
-import {
-	GestureHandlerRootView,
 	TextInput,
 	TouchableOpacity,
-} from "react-native-gesture-handler"
-import Colors from "@/constants/Colors"
-import { useUserStore } from "@/store/useUserStore"
-import { deleteValueSecureStore } from "@/store/SecureStore"
-
+} from "react-native";
+import { useAuth } from "@clerk/clerk-expo";
+import { Link, Stack, router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { defaultStyles } from "@/constants/Style";
+import { Ionicons } from "@expo/vector-icons";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import Colors from "@/constants/Colors";
+import { useUserStore } from "@/store/useUserStore";
+import { deleteValueSecureStore } from "@/store/SecureStore";
+import * as ImagePicker from 'expo-image-picker';
+import { UserAPI } from "@/api/UserAPI"
 const profile = () => {
-	const [edit, setEdit] = useState(false)
+	const [edit, setEdit] = useState(false);
+	const [newUsername, setNewUsername] = useState("");
+	const [avatarUri, setAvatarUri] = useState("https://avatars.githubusercontent.com/u/92299727?s=96&v=4");
 
-	const user = useUserStore((state) => state.user)
+	const user = useUserStore((state) => state.user);
 
 	const handleLogout = async () => {
-		deleteValueSecureStore("email")
-		router.push("/(modals)/login")
-	}
+		deleteValueSecureStore("email");
+		router.push("/(modals)/login");
+	};
 
+	const handleEdit = () => {
+		setEdit(false);
+		useUserStore.setState({ user: { ...user, username: newUsername } });
+		updateUserName(newUsername)
+	};
+	useEffect(() => {
+		console.log(user)
+		if (user.profile_image) {
+			setAvatarUri(user.profile_image);
+		}
+	}, []);
+
+	const pickImage = async () => {
+		let result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ImagePicker.MediaTypeOptions.Images,
+			allowsEditing: true,
+			aspect: [1, 1],
+			quality: 1,
+		});
+
+		if (!result.canceled) {
+			const uri = result.assets[0].uri;
+			const type = result.assets[0].type;
+			const name = result.assets[0].fileName;
+			const source = { uri, type, name }
+
+			setAvatarUri(uri);
+
+			updateUser(uri);
+		}
+	};
+
+	const updateUserName = async (name: string) => {
+		try {
+			const response = await UserAPI.updateName(name, user.token, user._id);
+			console.log('Update successful:', response);
+		} catch (error) {
+			console.error('Update failed:', error);
+		}
+	}
+	const updateUser = async (uri: string) => {
+		try {
+			const response = await UserAPI.updateUser(uri, user.token, user._id);
+			console.log('Update successful:', response);
+		} catch (error) {
+			console.error('Update failed:', error);
+		}
+	};
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
-			<Stack.Screen
-				options={{
-					header: () => <View></View>,
-				}}
-			></Stack.Screen>
+			<Stack.Screen options={{ header: () => <View></View> }}></Stack.Screen>
 
 			<SafeAreaView style={defaultStyles.container}>
 				<View style={styles.headerContainer}>
-					<Text style={styles.header}>
-						Profile {user.username}
-					</Text>
-					<Ionicons
-						name='notifications-outline'
-						size={26}
-					/>
+					<Text style={styles.header}>Profile {user.username}</Text>
+					<Ionicons name='notifications-outline' size={26} />
 				</View>
 
 				<View style={styles.card}>
-					<TouchableOpacity>
-						<Image
-							source={{
-								uri: "https://avatars.githubusercontent.com/u/92299727?s=96&v=4",
-							}}
-							style={styles.avatar}
-						/>
+					<TouchableOpacity onPress={pickImage}>
+						{user.profile_image ? (
+							<Image
+								source={{ uri: user.profile_image }} // Chuyển đổi thành chuỗi JavaScript
+								style={styles.avatar}
+							/>
+						) : (
+							<Image
+								source={{ uri: avatarUri }}
+								style={styles.avatar}
+							/>
+						)}
 					</TouchableOpacity>
+
 					<View style={{ flexDirection: "row", gap: 6 }}>
 						{!edit && (
 							<View style={styles.editRow}>
-								<Text
-									style={{
-										fontFamily: "mon-b",
-										fontSize: 22,
-									}}
-								>
+								<Text style={{ fontFamily: "mon-b", fontSize: 22 }}>
 									{user.username}
 								</Text>
-								<TouchableOpacity
-									onPress={() => setEdit(true)}
-								>
-									<Ionicons
-										name='create-outline'
-										size={24}
-										color={Colors.dark}
-									/>
+								<TouchableOpacity onPress={() => setEdit(true)}>
+									<Ionicons name='create-outline' size={24} color={Colors.dark} />
+								</TouchableOpacity>
+							</View>
+						)}
+						{edit && (
+							<View style={styles.editRow}>
+								<TextInput
+									style={styles.input}
+									value={newUsername}
+									onChangeText={setNewUsername}
+									placeholder="Enter new username"
+								/>
+								<TouchableOpacity onPress={handleEdit}>
+									<Ionicons name='checkmark-outline' size={24} color={Colors.dark} />
 								</TouchableOpacity>
 							</View>
 						)}
@@ -99,8 +147,8 @@ const profile = () => {
 				)}
 			</SafeAreaView>
 		</GestureHandlerRootView>
-	)
-}
+	);
+};
 
 const styles = StyleSheet.create({
 	headerContainer: {
@@ -143,6 +191,13 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 		gap: 8,
 	},
-})
+	input: {
+		fontSize: 22,
+		borderBottomWidth: 1,
+		borderBottomColor: Colors.dark,
+		flex: 1,
+		marginRight: 8,
+	},
+});
 
-export default profile
+export default profile;

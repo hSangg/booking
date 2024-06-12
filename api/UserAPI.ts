@@ -18,7 +18,7 @@ export const UserAPI = {
 				}
 			)
 			return response
-		} catch (error) {}
+		} catch (error) { }
 	},
 	register: async (
 		email: string,
@@ -78,4 +78,40 @@ export const UserAPI = {
 		)
 		return response.data
 	},
+
+	updateUser: async (uri: string, token: string, id: string) => {
+		const formData = new FormData();
+		formData.append('file', { uri: uri, name: 'photo.jpg', type: 'image/jpeg' } as any);
+		formData.append('id', id);
+		try {
+			const response = await axiosClient.post('/user/update', formData, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+			console.log('Image upload response:', response.data);
+			return response.data;
+		} catch (error) {
+			console.error('Image upload error:', error);
+		}
+	},
+
+	updateName: async (name: string, token: string, id: string) => {
+		const response = await axiosClient.post(
+			"/user/updateName",
+			{
+				name,
+				id
+			},
+			{
+				headers: {
+					Accept: "application/json",
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			}
+		)
+		return response.data
+	}
 }
