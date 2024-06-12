@@ -6,6 +6,7 @@ export interface User {
 	email: string
 	isLogin: boolean
 	created_at: Date
+	profile_image: string
 	token: string
 }
 
@@ -27,6 +28,7 @@ export const useUserStore = create<State & Action>(
 			phoneNumber: "",
 			isLogin: false,
 			created_at: new Date(),
+			profile_image: "",
 			token: "",
 		},
 		updateUser: (user: User) => set(() => ({ user })),

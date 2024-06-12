@@ -45,7 +45,7 @@ export const AuthHandle = {
 
 			if (res?.status !== 200) return null
 
-			const { _id, name, email, phone_number, created_at } =
+			const { _id, name, email, phone_number, created_at, profile_image } =
 				res?.data?.data
 
 			const user: User = {
@@ -55,6 +55,7 @@ export const AuthHandle = {
 				email,
 				phoneNumber: phone_number,
 				isLogin: true,
+				profile_image: profile_image,
 				created_at,
 			}
 

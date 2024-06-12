@@ -116,7 +116,9 @@ const Login = () => {
 						email,
 						phone_number,
 						created_at,
+						profile_image
 					} = res?.data?.data
+
 					const user: User = {
 						_id,
 						username: name,
@@ -124,6 +126,7 @@ const Login = () => {
 						phoneNumber: phone_number,
 						isLogin: true,
 						created_at,
+						profile_image: profile_image,
 						token: res.data.token,
 					}
 					updateUser(user)
@@ -134,6 +137,7 @@ const Login = () => {
 						"password",
 						data.password
 					)
+					await saveValueSecureStore("profile_image", profile_image)
 					router.push("/(tabs)/profile")
 				} else {
 					setPasswordError("Incorrect email or password")
@@ -146,7 +150,7 @@ const Login = () => {
 		}
 	}
 
-	const handelSignInWithGoogle = async () => {}
+	const handelSignInWithGoogle = async () => { }
 
 	return (
 		<View style={style.container}>
