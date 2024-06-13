@@ -6,7 +6,7 @@ export interface User {
 	email: string
 	isLogin: boolean
 	created_at: Date
-	profile_image: string
+	profile_image: string | null
 	token: string
 }
 

@@ -1,47 +1,50 @@
-import React, { useEffect, useState } from "react";
+import { UserAPI } from "@/api/UserAPI"
+import Colors from "@/constants/Colors"
+import { defaultStyles } from "@/constants/Style"
+import { deleteValueSecureStore } from "@/store/SecureStore"
+import { useUserStore } from "@/store/useUserStore"
+import { Ionicons } from "@expo/vector-icons"
+import * as ImagePicker from "expo-image-picker"
+import { Link, Stack, router } from "expo-router"
+import React, { useEffect, useState } from "react"
 import {
-	View,
-	Text,
 	Button,
-	StyleSheet,
 	Image,
+	StyleSheet,
+	Text,
 	TextInput,
 	TouchableOpacity,
-} from "react-native";
-import { useAuth } from "@clerk/clerk-expo";
-import { Link, Stack, router } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { defaultStyles } from "@/constants/Style";
-import { Ionicons } from "@expo/vector-icons";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import Colors from "@/constants/Colors";
-import { useUserStore } from "@/store/useUserStore";
-import { deleteValueSecureStore } from "@/store/SecureStore";
-import * as ImagePicker from 'expo-image-picker';
-import { UserAPI } from "@/api/UserAPI"
+	View,
+} from "react-native"
+import { GestureHandlerRootView } from "react-native-gesture-handler"
+import { SafeAreaView } from "react-native-safe-area-context"
 const profile = () => {
-	const [edit, setEdit] = useState(false);
-	const [newUsername, setNewUsername] = useState("");
-	const [avatarUri, setAvatarUri] = useState("https://avatars.githubusercontent.com/u/92299727?s=96&v=4");
+	const [edit, setEdit] = useState(false)
+	const [newUsername, setNewUsername] = useState("")
+	const [avatarUri, setAvatarUri] = useState(
+		"https://avatars.githubusercontent.com/u/92299727?s=96&v=4"
+	)
 
-	const user = useUserStore((state) => state.user);
+	const user = useUserStore((state) => state.user)
 
 	const handleLogout = async () => {
-		deleteValueSecureStore("email");
-		router.push("/(modals)/login");
-	};
+		deleteValueSecureStore("email")
+		router.push("/(modals)/login")
+	}
 
 	const handleEdit = () => {
-		setEdit(false);
-		useUserStore.setState({ user: { ...user, username: newUsername } });
+		setEdit(false)
+		useUserStore.setState({
+			user: { ...user, username: newUsername },
+		})
 		updateUserName(newUsername)
-	};
+	}
 	useEffect(() => {
 		console.log(user)
 		if (user.profile_image) {
-			setAvatarUri(user.profile_image);
+			setAvatarUri(user.profile_image)
 		}
-	}, []);
+	}, [])
 
 	const pickImage = async () => {
 		let result = await ImagePicker.launchImageLibraryAsync({
@@ -49,44 +52,59 @@ const profile = () => {
 			allowsEditing: true,
 			aspect: [1, 1],
 			quality: 1,
-		});
+		})
 
 		if (!result.canceled) {
-			const uri = result.assets[0].uri;
-			const type = result.assets[0].type;
-			const name = result.assets[0].fileName;
+			const uri = result.assets[0].uri
+			const type = result.assets[0].type
+			const name = result.assets[0].fileName
 			const source = { uri, type, name }
 
-			setAvatarUri(uri);
+			setAvatarUri(uri)
 
-			updateUser(uri);
+			updateUser(uri)
 		}
-	};
+	}
 
 	const updateUserName = async (name: string) => {
 		try {
-			const response = await UserAPI.updateName(name, user.token, user._id);
-			console.log('Update successful:', response);
+			const response = await UserAPI.updateName(
+				name,
+				user.token,
+				user._id
+			)
+			console.log("Update successful:", response)
 		} catch (error) {
-			console.error('Update failed:', error);
+			console.error("Update failed:", error)
 		}
 	}
 	const updateUser = async (uri: string) => {
 		try {
-			const response = await UserAPI.updateUser(uri, user.token, user._id);
-			console.log('Update successful:', response);
+			const response = await UserAPI.updateUser(
+				uri,
+				user.token,
+				user._id
+			)
+			console.log("Update successful:", response)
 		} catch (error) {
-			console.error('Update failed:', error);
+			console.error("Update failed:", error)
 		}
-	};
+	}
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
-			<Stack.Screen options={{ header: () => <View></View> }}></Stack.Screen>
+			<Stack.Screen
+				options={{ header: () => <View></View> }}
+			></Stack.Screen>
 
 			<SafeAreaView style={defaultStyles.container}>
 				<View style={styles.headerContainer}>
-					<Text style={styles.header}>Profile {user.username}</Text>
-					<Ionicons name='notifications-outline' size={26} />
+					<Text style={styles.header}>
+						Profile {user.username}
+					</Text>
+					<Ionicons
+						name='notifications-outline'
+						size={26}
+					/>
 				</View>
 
 				<View style={styles.card}>
@@ -107,11 +125,22 @@ const profile = () => {
 					<View style={{ flexDirection: "row", gap: 6 }}>
 						{!edit && (
 							<View style={styles.editRow}>
-								<Text style={{ fontFamily: "mon-b", fontSize: 22 }}>
+								<Text
+									style={{
+										fontFamily: "mon-b",
+										fontSize: 22,
+									}}
+								>
 									{user.username}
 								</Text>
-								<TouchableOpacity onPress={() => setEdit(true)}>
-									<Ionicons name='create-outline' size={24} color={Colors.dark} />
+								<TouchableOpacity
+									onPress={() => setEdit(true)}
+								>
+									<Ionicons
+										name='create-outline'
+										size={24}
+										color={Colors.dark}
+									/>
 								</TouchableOpacity>
 							</View>
 						)}
@@ -121,10 +150,14 @@ const profile = () => {
 									style={styles.input}
 									value={newUsername}
 									onChangeText={setNewUsername}
-									placeholder="Enter new username"
+									placeholder='Enter new username'
 								/>
 								<TouchableOpacity onPress={handleEdit}>
-									<Ionicons name='checkmark-outline' size={24} color={Colors.dark} />
+									<Ionicons
+										name='checkmark-outline'
+										size={24}
+										color={Colors.dark}
+									/>
 								</TouchableOpacity>
 							</View>
 						)}
@@ -147,8 +180,8 @@ const profile = () => {
 				)}
 			</SafeAreaView>
 		</GestureHandlerRootView>
-	);
-};
+	)
+}
 
 const styles = StyleSheet.create({
 	headerContainer: {
@@ -198,6 +231,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		marginRight: 8,
 	},
-});
+})
 
-export default profile;
+export default profile

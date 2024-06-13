@@ -102,12 +102,14 @@ const Login = () => {
 		const isEmailValid = validateEmail(data.email)
 		const isPasswordValid = validatePassword(data.password)
 
+		console.log(data.email, data.password)
 		if (isEmailValid && isPasswordValid) {
 			try {
 				const res = await UserAPI.login(
 					data.email,
 					data.password
 				)
+				console.log(res?.data)
 
 				if (res?.status === 200) {
 					const {
@@ -116,7 +118,7 @@ const Login = () => {
 						email,
 						phone_number,
 						created_at,
-						profile_image
+						profile_image,
 					} = res?.data?.data
 
 					const user: User = {
@@ -137,7 +139,6 @@ const Login = () => {
 						"password",
 						data.password
 					)
-					await saveValueSecureStore("profile_image", profile_image)
 					router.push("/(tabs)/profile")
 				} else {
 					setPasswordError("Incorrect email or password")
@@ -150,7 +151,7 @@ const Login = () => {
 		}
 	}
 
-	const handelSignInWithGoogle = async () => { }
+	const handelSignInWithGoogle = async () => {}
 
 	return (
 		<View style={style.container}>
