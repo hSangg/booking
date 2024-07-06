@@ -148,17 +148,21 @@ const DetailPage = () => {
 		const start_date = dateRange.startDate
 		const end_date = dateRange.endDate
 
-		const res = await RoomAPI.reservation(
+		const { res, data } = await RoomAPI.reservation(
 			user_id,
 			room_id,
 			start_date,
 			end_date,
 			token
 		)
-
+		const _id = data.data._id;
 		const message = "Chúc mừng bạn đã đặt phòng thành công"
-
-		if (res) router.push(`(information)/${message}` as any)
+		console.log("id ne: ", _id);
+		console.log(res)
+		if (res) {
+			await RoomAPI.payment(_id);
+			router.push(`(information)/${message}` as any)
+		}
 	}
 
 	return (

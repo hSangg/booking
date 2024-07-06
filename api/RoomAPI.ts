@@ -1,7 +1,7 @@
 import { createQueryString } from "@/app/utils/utilFunction"
 import { SearchOptions } from "@/interface/SearchOptions"
 import { axiosClient } from "./AxiosClient"
-
+import { Linking } from 'react-native';
 export const RoomAPI = {
 	getRoom: async (
 		getRoomCondition: SearchOptions | null
@@ -42,24 +42,35 @@ export const RoomAPI = {
 		end_date: string,
 		token: string
 	) => {
-		const result = await axiosClient.post(
-			"/booking/bookRoom",
-			{
-				user_id,
-				room_id,
-				start_date,
-				end_date,
-			},
-			{
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
+		try {
+			const result = await axiosClient.post(
+				"/booking/bookRoom",
+				{
+					user_id,
+					room_id,
+					start_date,
+					end_date,
 				},
-			}
-		)
+				{
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
 
-		if (result.status === 201) return true
-		else return false
+			console.log(result.data);
+
+			if (result.status === 201 && result.data) {
+				return { res: true, data: result.data };
+			} else {
+				return { res: false, data: null };
+			}
+		} catch (error) {
+			console.error("Error making reservation request:", error);
+			return { res: false, data: null };
+		}
+
 	},
 	getReservationRoomByUserId: async (
 		user_id: string,
@@ -84,6 +95,34 @@ export const RoomAPI = {
 			)
 		}
 	},
+	payment: async (
+		id: string
+	) => {
+		try {
+			console.log(id);
+			const result = await axiosClient.post(
+				"booking/payment",
+				{ reserve_id: id },
+				{
+					headers: {
+						"Content-Type": "application/json",
+					},
+				}
+			);
+
+			console.log(result.status);
+
+			if (result.status === 200) {
+				Linking.openURL(result?.data?.data?.payUrl).catch((err) =>
+					console.error("Couldn't load page", err)
+				);
+			} else {
+				console.error("Payment request failed with status:", result.status);
+			}
+		} catch (error) {
+			console.error("Error making payment request:", error);
+		}
+	}
 }
 
 /**
