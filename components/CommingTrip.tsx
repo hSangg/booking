@@ -18,10 +18,12 @@ interface Props {
 
 const CommingTrip = ({ trips }: Props) => {
 	const renderRow: ListRenderItem<any> = ({ item }) => (
+
 		<Animated.View style={styles.listing}>
+
 			<Animated.Image
 				style={styles.image}
-				src={item.room.thumbnail_urls[0]}
+				src={(Array.isArray(item.room.thumbnail_urls) && item.room.thumbnail_urls.length > 0) ? item.room.thumbnail_urls[0] : item.room.thumbnail_urls}
 			/>
 			<Animated.View
 				style={{
@@ -96,8 +98,30 @@ const CommingTrip = ({ trips }: Props) => {
 						</Text>
 					</View>
 				</Animated.View>
+
 			</Animated.View>
 
+			{item.payed ? (
+				<View style={{ width: "100%" }}>
+					<TouchableOpacity style={styles.button}>
+						<Text style={{ color: "white", paddingLeft: 5 }}>
+							Đã thanh toán
+						</Text>
+					</TouchableOpacity>
+				</View>
+			) : (
+				<>
+					{console.log(item.payed)}
+					<View style={{ width: "100%" }}>
+						<TouchableOpacity style={styles.button}>
+							<Text style={{ color: "white", paddingLeft: 5 }}>
+								Chưa thanh toán
+							</Text>
+						</TouchableOpacity>
+					</View>
+				</>
+			)
+			}
 			<View style={{ width: "100%" }}>
 				<TouchableOpacity style={styles.button}>
 					<Text style={{ color: "white", paddingLeft: 5 }}>
@@ -105,7 +129,7 @@ const CommingTrip = ({ trips }: Props) => {
 					</Text>
 				</TouchableOpacity>
 			</View>
-		</Animated.View>
+		</Animated.View >
 	)
 
 	return (
